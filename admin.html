@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Engibrief</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="logo">Engibrief Admin</div>
+</header>
+
+<section class="admin-panel">
+    <h2>Add New E-Book</h2>
+
+    <form id="addProductForm">
+        <input type="text" id="title" placeholder="Title">
+        <input type="number" id="price" placeholder="Price">
+        <textarea id="description" placeholder="Description"></textarea>
+        <input type="file" id="pdfFile">
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Existing Products</h2>
+    <div id="adminProductList"></div>
+</section>
+
+<script src="app.js"></script>
+<script src="admin-scripts/admin.js"></script>
+
+</body>
+</html>
