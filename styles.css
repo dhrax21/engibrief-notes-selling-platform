@@ -3,7 +3,7 @@
 body {
     font-family: Arial, sans-serif;
     background: #fafafa;
-    color: #222;
+    color: #222; 
 }
 
 :root {
@@ -16,49 +16,97 @@ body {
 }
 
 /* NAVBAR */
-.navbar {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 70px;
+/* ===== NAVBAR RESET ===== */
+header, nav, div, a {
+    box-sizing: border-box;
+}
 
+/* ===== NAVBAR ===== */
+.navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    padding: 0 50px;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(12px);
-
-    border-bottom: 1px solid var(--border);
-    z-index: 100;
+    padding: 18px 40px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e6e6e6;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* LOGO */
 .logo {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--primary);
+    color: #111111;
 }
 
+/* NAV LINKS CONTAINER */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+/* NAV LINKS */
 .nav-links a {
-    margin-left: 25px;
     text-decoration: none;
-    color: #333;
+    color: #111111;
     font-size: 15px;
-    transition: 0.3s;
+    font-weight: 500;
+}
+
+/* REMOVE DEFAULT BLUE/UNDERLINE */
+.nav-links a:visited {
+    color: #111111;
 }
 
 .nav-links a:hover {
     opacity: 0.7;
 }
 
+/* AUTH AREA */
+#authArea {
+    display: flex;
+    align-items: center;
+    margin-left: 12px;
+}
+
+/* LOGIN BUTTON (when logged out) */
 .login-btn {
-    margin-left: 25px;
-    padding: 8px 18px;
-    background: var(--primary);
-    color: white;
+    padding: 6px 14px;
+    border: 1px solid #111;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    color: #111;
+}
+
+/* USER MENU (when logged in) */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+}
+
+.logout-btn {
+    margin-left: 6px;
+    padding: 6px 12px;
     border: none;
-    border-radius: 8px;
+    background: #111;
+    color: #fff;
+    border-radius: 6px;
     cursor: pointer;
 }
 
@@ -577,4 +625,79 @@ delete-btn:hover {
 
 .auth-link a:hover {
     opacity: 0.7;
+}
+.google-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+    gap: 10px;
+    transition: 0.25s ease;
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.google-btn:hover {
+    background: #f1f1f1;
+}
+
+
+/* MODAL CSS */
+/* MODAL OVERLAY */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* MODAL BOX */
+.modal {
+    background: #fff;
+    padding: 28px;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    animation: modalFade 0.25s ease;
+}
+
+.modal h3 {
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+.modal p {
+    color: #555;
+    font-size: 15px;
+    margin-bottom: 22px;
+}
+
+/* BUTTON */
+.modal-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #111;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+@keyframes modalFade {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
