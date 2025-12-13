@@ -10,14 +10,18 @@
 
 <header class="navbar">
     <div class="logo">Engibrief</div>
+
     <nav class="nav-links">
-        <a href="#features">Features</a>
+        <a href="index.html">Home</a>
         <a href="products.html">E-Books</a>
         <a href="support.html">Support</a>
-        <a href="orders.html">My Orders</a>
-        <button class="login-btn">Login</button>
+
+        <!-- Auth Area -->
+        <div id="authArea">
+            <!-- Filled dynamically by app.js -->
+        </div>
     </nav>
-</header>
+</header>   
 
 <!-- HERO -->
 <section class="hero">
@@ -92,6 +96,12 @@
     <p>© 2025 Engibrief. All rights reserved.</p>
 </footer>
 
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
 <script src="app.js"></script>
+
 </body>
 </html>

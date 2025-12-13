@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+        
 
 <div class="auth-wrapper">
 
@@ -18,12 +19,24 @@
         <input type="password" id="loginPassword" class="auth-input" placeholder="Password">
 
         <button class="auth-btn" onclick="loginUser()">Login</button>
+        <button class="google-btn" onclick="googleLogin()">
+            <img src="assets/google-icon.png" alt="Google">
+                Continue with Google
+            </button>
+            <p class="auth-link">
+             <a href="#" onclick="forgotPassword()">Forgot password?</a>
+           </p>
+
 
         <p class="auth-link">Don't have an account? <a href="signup.html">Sign Up</a></p>
     </div>
 
 </div>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+        <script defer src="app.js"></script>
 
-<script src="app.js"></script>
+
 </body>
 </html>

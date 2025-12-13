@@ -1,35 +1,181 @@
-// Initialize Firebase
+/* ================= GLOBAL MODAL (AUTO-INJECTED) ================= */
+
+(function createGlobalModal() {
+    const modalHTML = `
+        <div id="modalOverlay" class="modal-overlay" style="display:none">
+            <div class="modal">
+                <h3 id="modalTitle">Message</h3>
+                <p id="modalMessage"></p>
+                <button class="modal-btn" id="modalCloseBtn">OK</button>
+            </div>
+        </div>
+    `;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+        document
+            .getElementById("modalCloseBtn")
+            .addEventListener("click", closeModal);
+    });
+})();
+
+/* ================= MODAL FUNCTIONS ================= */
+
+function showModal(title, message) {
+    const overlay = document.getElementById("modalOverlay");
+    const titleEl = document.getElementById("modalTitle");
+    const msgEl   = document.getElementById("modalMessage");
+
+    if (!overlay) {
+        console.error("Modal not initialized");
+        return;
+    }
+
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+    overlay.style.display = "flex";
+}
+
+function closeModal() {
+    const overlay = document.getElementById("modalOverlay");
+    if (overlay) overlay.style.display = "none";
+}
+
+
+
+if (typeof firebase === "undefined") {
+    alert("FIREBASE IS UNDEFINED — SDK NOT LOADED");
+    throw new Error("Firebase SDK not loaded");
+}
+
+console.log("Firebase is available");
+
+// Firebase config
 const firebaseConfig = {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+  apiKey: "AIzaSyAr-xzpIGp8LEO5DiUXsJio0y2_5HdFvcw",
+  authDomain: "engibriefs-bb7a1.firebaseapp.com",
+  projectId: "engibriefs-bb7a1",
+  storageBucket: "engibriefs-bb7a1.appspot.com",
+  messagingSenderId: "864838434878",
+  appId: "1:864838434878:web:50fb95fcc5e0f6a24b916f"
 };
+
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+console.log("Firebase initialized");
 
-const db = firebase.firestore();
-const storage = firebase.storage();
+// ✅ DEFINE AUTH FIRST
 const auth = firebase.auth();
+const db   = firebase.firestore();
 
-// Example: Fetch products
-function loadProducts() {
-    const container = document.getElementById("productContainer");
-    if (!container) return;
+// (Optional) expose auth globally if needed
+window.auth = auth;
 
-    db.collection("products").get().then(snapshot => {
-        container.innerHTML = "";
-        snapshot.forEach(doc => {
-            const p = doc.data();
-            container.innerHTML += `
-                <div class="feature-card">
-                    <h3>${p.title}</h3>
-                    <p>₹${p.price}</p>
-                    <a href="product-detail.html?id=${doc.id}">View Details</a>
+// ✅ NOW IT IS SAFE TO USE auth
+auth.onAuthStateChanged(user => {
+    console.log("Auth state:", user ? user.email : "NO USER");
+
+    const path = window.location.pathname;
+
+    /* ---------- NAVBAR ---------- */
+    const authArea = document.getElementById("authArea");
+    if (authArea) {
+        if (user) {
+            authArea.innerHTML = `
+                <div class="user-menu">
+                    <span class="user-name">${user.displayName || user.email}</span>
+                    <button class="logout-btn" onclick="logoutUser()">Logout</button>
                 </div>
             `;
-        });
+        } else {
+            authArea.innerHTML = `<a href="login.html" class="login-btn">Login</a>`;
+        }
+    }
+
+    /* ---------- PAGE PROTECTION ONLY ---------- */
+    if (path.includes("profile.html")) {
+        if (!user) {
+            window.location.href = "login.html";
+        } else {
+            const emailEl = document.getElementById("profileEmail");
+            const nameEl  = document.getElementById("profileName");
+
+            if (emailEl) emailEl.value = user.email;
+            if (nameEl)  nameEl.value = user.displayName || "";
+        }
+    }
+});
+
+
+
+
+/* ---------------- AUTH FUNCTIONS ---------------- */
+
+// LOGIN
+function loginUser() {
+    auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value)
+        .then(() => {
+            window.location.href = "index.html";
+        })
+        .catch(() => {
+        showModal(
+        "Login Failed",
+        "Incorrect email or password. Please try again."
+    );
+});
+
+}
+
+
+// SIGNUP
+function signupUser() {
+    auth.createUserWithEmailAndPassword(signupEmail.value, signupPassword.value)
+        .then(res => {
+            return db.collection("users").doc(res.user.uid).set({
+                email: res.user.email,
+                uid: res.user.uid,
+                createdAt: Date.now()
+            });
+        })
+        .then(() => {
+        window.location.href = "index.html";
+        }).catch(err => alert(err.message));
+}
+
+// GOOGLE LOGIN
+function googleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(() => window.location.href = "index.html")
+        .catch(err => alert(err.message));
+}
+
+// LOGOUT
+function logoutUser() {
+    auth.signOut().then(() => {
+        window.location.href = "login.html";
     });
 }
-loadProducts();
+
+function forgotPassword() {
+    const email = document.getElementById("loginEmail")?.value;
+
+    if (!email) {
+        alert("Please enter your email address first.");
+        return;
+    }
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+        showModal(
+            "Email Sent",
+            "A password reset link has been sent to your email."
+        );
+    })
+    .catch(err => {
+        showModal("Error", err.message);
+    });
+
+}
+
