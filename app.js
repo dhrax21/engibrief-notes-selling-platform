@@ -1,3 +1,6 @@
+const ADMIN_EMAIL = "manksingh36@gmail.com";
+
+
 /* ================= GLOBAL MODAL (AUTO-INJECTED) ================= */
 
 (function createGlobalModal() {
@@ -103,6 +106,20 @@ auth.onAuthStateChanged(user => {
 
             if (emailEl) emailEl.value = user.email;
             if (nameEl)  nameEl.value = user.displayName || "";
+        }
+    }
+
+    /* ---------- ADMIN PAGE PROTECTION ---------- */
+    if (path.includes("admin.html")) {
+        if (!user || user.email !== ADMIN_EMAIL) {
+            showModal(
+                "Access Denied",
+                "You are not authorized to access the admin panel."
+            );
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1500);
+            return;
         }
     }
 });
