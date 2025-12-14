@@ -54,15 +54,7 @@ if (typeof firebase === "undefined") {
 
 console.log("Firebase is available");
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAr-xzpIGp8LEO5DiUXsJio0y2_5HdFvcw",
-  authDomain: "engibriefs-bb7a1.firebaseapp.com",
-  projectId: "engibriefs-bb7a1",
-  storageBucket: "engibriefs-bb7a1.appspot.com",
-  messagingSenderId: "864838434878",
-  appId: "1:864838434878:web:50fb95fcc5e0f6a24b916f"
-};
+
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
