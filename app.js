@@ -1,190 +1,249 @@
-const ADMIN_EMAIL = "manksingh36@gmail.com";
+/************************************************************
+ * APP.JS – ENGIBRIEFS (CLEAN, FINAL, MODULAR)
+ ************************************************************/
 
+/* ==================== IMPORTS ==================== */
+import { firebaseConfig } from "./firebase-config.js";
 
-/* ================= GLOBAL MODAL (AUTO-INJECTED) ================= */
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-(function createGlobalModal() {
-    const modalHTML = `
-        <div id="modalOverlay" class="modal-overlay" style="display:none">
-            <div class="modal">
-                <h3 id="modalTitle">Message</h3>
-                <p id="modalMessage"></p>
-                <button class="modal-btn" id="modalCloseBtn">OK</button>
-            </div>
-        </div>
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+/* ==================== INIT ==================== */
+console.log("app.js loaded");
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+/* ==================== AUTH STATE HANDLER ==================== */
+let authHandled = false;
+
+onAuthStateChanged(auth, async (user) => {
+  if (authHandled) return;
+  authHandled = true;
+
+  const path = window.location.pathname;
+  /* ---------- NAVBAR AUTH UI ---------- */
+const authArea = document.getElementById("authArea");
+
+if (authArea) {
+  if (user) {
+    authArea.innerHTML = `
+      <div class="nav-user">
+        <span class="nav-username">
+          ${user.displayName || user.email}
+        </span>
+        <a href="profile.html" class="nav-link"></a>
+        <button class="logout-btn" onclick="logoutUser()">Logout</button>
+      </div>
     `;
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-        document
-            .getElementById("modalCloseBtn")
-            .addEventListener("click", closeModal);
-    });
-})();
-
-/* ================= MODAL FUNCTIONS ================= */
-
-function showModal(title, message) {
-    const overlay = document.getElementById("modalOverlay");
-    const titleEl = document.getElementById("modalTitle");
-    const msgEl   = document.getElementById("modalMessage");
-
-    if (!overlay) {
-        console.error("Modal not initialized");
-        return;
-    }
-
-    titleEl.textContent = title;
-    msgEl.textContent = message;
-    overlay.style.display = "flex";
-}
-
-function closeModal() {
-    const overlay = document.getElementById("modalOverlay");
-    if (overlay) overlay.style.display = "none";
+  } else {
+    authArea.innerHTML = `
+      <a href="login.html" class="login-btn">Login</a>
+    `;
+  }
 }
 
 
+  console.log("Auth state:", user ? user.email : "NO USER");
 
-if (typeof firebase === "undefined") {
-    alert("FIREBASE IS UNDEFINED — SDK NOT LOADED");
-    throw new Error("Firebase SDK not loaded");
-}
+  /* ---------- LOGIN PAGE ---------- */
+  if (path.includes("login.html")) {
+    if (user) {
+      window.location.replace("index.html");
+    }
+    return;
+  }
 
-console.log("Firebase is available");
-
-
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-console.log("Firebase initialized");
-
-// ✅ DEFINE AUTH FIRST
-const auth = firebase.auth();
-const db   = firebase.firestore();
-
-// (Optional) expose auth globally if needed
-window.auth = auth;
-
-// ✅ NOW IT IS SAFE TO USE auth
-auth.onAuthStateChanged(user => {
-    console.log("Auth state:", user ? user.email : "NO USER");
-
-    const path = window.location.pathname;
-
-    /* ---------- NAVBAR ---------- */
-    const authArea = document.getElementById("authArea");
-    if (authArea) {
-        if (user) {
-            authArea.innerHTML = `
-                <div class="user-menu">
-                    <span class="user-name">${user.displayName || user.email}</span>
-                    <button class="logout-btn" onclick="logoutUser()">Logout</button>
-                </div>
-            `;
-        } else {
-            authArea.innerHTML = `<a href="login.html" class="login-btn">Login</a>`;
-        }
+  /* ---------- ADMIN PAGE ---------- */
+  if (path.includes("admin.html")) {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
     }
 
-    /* ---------- PAGE PROTECTION ONLY ---------- */
-    if (path.includes("profile.html")) {
-        if (!user) {
-            window.location.href = "login.html";
-        } else {
-            const emailEl = document.getElementById("profileEmail");
-            const nameEl  = document.getElementById("profileName");
+    const token = await user.getIdTokenResult(true);
+    console.log("Admin claims:", token.claims);
 
-            if (emailEl) emailEl.value = user.email;
-            if (nameEl)  nameEl.value = user.displayName || "";
-        }
+    if (!token.claims.admin) {
+      alert("Admins only");
+      window.location.replace("index.html");
+      return;
+    }
+  }
+
+  /* ---------- PROFILE PAGE ---------- */
+  if (path.includes("profile.html")) {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
     }
 
-    /* ---------- ADMIN PAGE PROTECTION ---------- */
-    if (path.includes("admin.html")) {
-        if (!user || user.email !== ADMIN_EMAIL) {
-            showModal(
-                "Access Denied",
-                "You are not authorized to access the admin panel."
-            );
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1500);
-            return;
-        }
-    }
+    const nameInput = document.getElementById("profileName");
+    const emailInput = document.getElementById("profileEmail");
+
+    if (nameInput) nameInput.value = user.displayName || "";
+    if (emailInput) emailInput.value = user.email || "";
+  }
 });
 
-
-
-
-/* ---------------- AUTH FUNCTIONS ---------------- */
+/* ==================== AUTH FUNCTIONS ==================== */
 
 // LOGIN
-function loginUser() {
-    auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value)
-        .then(() => {
-            window.location.href = "index.html";
-        })
-        .catch(() => {
-        showModal(
-        "Login Failed",
-        "Incorrect email or password. Please try again."
-    );
-});
+async function loginUser() {
+  const email = document.getElementById("loginEmail")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value;
 
+  if (!email || !password) {
+    alert("Email and password required");
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.replace("index.html");
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
-
 // SIGNUP
-function signupUser() {
-    auth.createUserWithEmailAndPassword(signupEmail.value, signupPassword.value)
-        .then(res => {
-            return db.collection("users").doc(res.user.uid).set({
-                email: res.user.email,
-                uid: res.user.uid,
-                createdAt: Date.now()
-            });
-        })
-        .then(() => {
-        window.location.href = "index.html";
-        }).catch(err => alert(err.message));
+async function signupUser() {
+  const name = document.getElementById("signupName")?.value.trim();
+  const email = document.getElementById("signupEmail")?.value.trim();
+  const password = document.getElementById("signupPassword")?.value;
+
+  if (!name || !email || !password) {
+    alert("All fields are required");
+    return;
+  }
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    window.location.replace("index.html");
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 // GOOGLE LOGIN
-function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(() => window.location.href = "index.html")
-        .catch(err => alert(err.message));
+async function googleLogin() {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    window.location.replace("index.html");
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// FORGOT PASSWORD
+async function forgotPassword() {
+  const email = document.getElementById("loginEmail")?.value;
+
+  if (!email) {
+    alert("Enter your email first");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert("Password reset email sent");
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 // LOGOUT
-function logoutUser() {
-    auth.signOut().then(() => {
-        window.location.href = "login.html";
-    });
+async function logoutUser() {
+  await signOut(auth);
+  window.location.replace("login.html");
 }
 
-function forgotPassword() {
-    const email = document.getElementById("loginEmail")?.value;
+/* ==================== ADMIN UPLOAD ==================== */
+async function uploadEbook() {
+  try {
+    const title = document.getElementById("title")?.value.trim();
+    const description = document.getElementById("description")?.value.trim();
+    const price = Number(document.getElementById("price")?.value);
+    const tags = document.getElementById("tags")?.value
+      .split(",")
+      .map(t => t.trim())
+      .filter(Boolean);
 
-    if (!email) {
-        alert("Please enter your email address first.");
-        return;
+    const coverImage = document.getElementById("coverImage")?.files[0];
+    const pdfFile = document.getElementById("pdfFile")?.files[0];
+
+    if (!title || !price || !coverImage || !pdfFile) {
+      alert("All fields are required");
+      return;
     }
 
-  auth.sendPasswordResetEmail(email)
-    .then(() => {
-        showModal(
-            "Email Sent",
-            "A password reset link has been sent to your email."
-        );
-    })
-    .catch(err => {
-        showModal("Error", err.message);
+    if (pdfFile.type !== "application/pdf") {
+      alert("Only PDF files allowed");
+      return;
+    }
+
+    const ts = Date.now();
+
+    const coverRef = ref(storage, `ebooks/covers/${ts}-${coverImage.name}`);
+    await uploadBytes(coverRef, coverImage);
+    const coverURL = await getDownloadURL(coverRef);
+
+    const pdfRef = ref(storage, `ebooks/pdfs/${ts}-${pdfFile.name}`);
+    await uploadBytes(pdfRef, pdfFile);
+    const pdfURL = await getDownloadURL(pdfRef);
+
+    await addDoc(collection(db, "ebooks"), {
+      title,
+      description,
+      price,
+      tags,
+      coverURL,
+      pdfURL,
+      createdAt: serverTimestamp()
     });
 
+    alert("E-book uploaded successfully");
+    document.getElementById("addProductForm")?.reset();
+
+  } catch (err) {
+    alert("Upload failed: " + err.message);
+  }
 }
 
+/* ==================== EXPOSE TO HTML ==================== */
+window.loginUser = loginUser;
+window.signupUser = signupUser;
+window.googleLogin = googleLogin;
+window.forgotPassword = forgotPassword;
+window.logoutUser = logoutUser;
+window.uploadEbook = uploadEbook;

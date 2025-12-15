@@ -1,69 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engibrief Admin</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engibrief Admin</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <header class="admin-navbar">
-    <h2>Engibrief Admin Dashboard</h2>
+  <h2>Engibrief Admin Dashboard</h2>
 </header>
 
 <section class="admin-container">
 
-    <h2 class="section-title">Add New E-Book</h2>
+  <h2 class="section-title">Add New E-Book</h2>
 
-    <form id="addProductForm" class="admin-form">
+  <!-- ❌ NO AUTO SUBMIT -->
+  <form id="addProductForm" class="admin-form" onsubmit="return false;">
 
-        <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="title" placeholder="Enter title">
-        </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="title" placeholder="Enter title">
+    </div>
 
-        <div class="form-group">
-            <label>Description</label>
-            <textarea id="description" placeholder="Short description"></textarea>
-        </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="description"></textarea>
+    </div>
 
-        <div class="form-row">
+    <div class="form-row">
+      <div class="form-group half">
+        <label>Price (₹)</label>
+        <input type="number" id="price">
+      </div>
 
-            <div class="form-group half">
-                <label>Price (₹)</label>
-                <input type="number" id="price" placeholder="299">
-            </div>
+      <div class="form-group half">
+        <label>Tags</label>
+        <input type="text" id="tags">
+      </div>
+    </div>
 
-            <div class="form-group half">
-                <label>Tags</label>
-                <input type="text" id="tags" placeholder="CSE, Notes, Sem 3">
-            </div>
-        </div>
+    <div class="form-group">
+      <label>Cover Image</label>
+      <input type="file" id="coverImage" accept="image/*">
+    </div>
 
-        <div class="form-group">
-            <label>Cover Image</label>
-            <input type="file" id="coverImage">
-        </div>
+    <div class="form-group">
+      <label>PDF File</label>
+      <input type="file" id="pdfFile" accept="application/pdf">
+    </div>
 
-        <div class="form-group">
-            <label>PDF File</label>
-            <input type="file" id="pdfFile">
-        </div>
+    <!-- ✅ BUTTON MUST BE TYPE=BUTTON -->
+    <button
+      type="button"
+      class="admin-submit-btn"
+      onclick="uploadEbook()"
+    >
+      Upload Product
+    </button>
 
-        <button type="submit" class="admin-submit-btn">Upload Product</button>
-    </form>
+  </form>
 
-
-    <h2 class="section-title">Existing Products</h2>
-
-    <div id="adminProductList" class="admin-product-grid"></div>
+  <h2 class="section-title">Existing Products</h2>
+  <div id="adminProductList" class="admin-product-grid"></div>
 
 </section>
 
-<script src="app.js"></script>
-<script src="admin-scripts/admin.js"></script>
+<!-- ✅ ONLY ONE SCRIPT, MODULE-BASED -->
+<script type="module" src="./app.js"></script>
 
 </body>
 </html>

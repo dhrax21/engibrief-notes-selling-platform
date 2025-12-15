@@ -1,107 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engibrief – Premium Engineering Notes</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Engibrief – Engineering Notes & E-Books</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
+<!-- NAVBAR -->
 <header class="navbar">
-    <div class="logo">Engibrief</div>
-
-    <nav class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="products.html">E-Books</a>
-        <a href="support.html">Support</a>
-
-        <!-- Auth Area -->
-        <div id="authArea">
-            <!-- Filled dynamically by app.js -->
-        </div>
-    </nav>
-</header>   
+  <div class="logo">Engibrief</div>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="products.html">E-Books</a>
+    <a href="support.html">Support</a>
+    <div id="authArea"></div>
+  </nav>
+</header>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <h1>Master Engineering With<br>Premium Notes & E-Books</h1>
-        <p>Clear concepts faster. Study smarter. Learn only what matters.</p>
-        <a href="products.html" class="cta-btn">Browse E-Books</a>
+  <div class="hero-content">
+    <h1>
+      Engineering Notes, <br>
+      <span>Explained Simply</span>
+    </h1>
+
+    <p>
+      High-quality, exam-focused engineering e-books written to save
+      your time and boost your understanding.
+    </p>
+
+    <div class="hero-actions">
+      <a href="products.html" class="primary-btn">Browse E-Books</a>
+      <a href="signup.html" class="secondary-btn">Get Started</a>
     </div>
+  </div>
+
+  <div class="hero-image">
+    <img src="assets/hero-books.png" alt="Engineering notes">
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust">
+  <p>Trusted by engineering students from</p>
+  <div class="trust-logos">
+    <span>IITs</span>
+    <span>NITs</span>
+    <span>State Universities</span>
+  </div>
 </section>
 
 <!-- FEATURES -->
-<section id="features" class="features">
-    <h2 class="section-title">Why Students Trust Engibrief</h2>
+<section class="features">
+  <h2>Why Engibrief?</h2>
 
-    <div class="feature-grid">
-        <div class="feature-card">
-            <h3>Laser-Focused Content</h3>
-            <p>Notes designed to simplify complex engineering subjects with clarity.</p>
-        </div>
-
-        <div class="feature-card">
-            <h3>Instant Access</h3>
-            <p>Download your study material immediately after checkout.</p>
-        </div>
-
-        <div class="feature-card">
-            <h3>Exam-Driven Structure</h3>
-            <p>Get exactly what you need for exams, interviews, and revisions.</p>
-        </div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>📘 Exam-Focused</h3>
+      <p>Notes designed strictly around university syllabi.</p>
     </div>
+
+    <div class="feature-card">
+      <h3>⚡ Time-Saving</h3>
+      <p>No fluff. Only what you need to score well.</p>
+    </div>
+
+    <div class="feature-card">
+      <h3>🔐 Lifetime Access</h3>
+      <p>Buy once. Access forever from any device.</p>
+    </div>
+  </div>
 </section>
 
-<!-- PRODUCT PREVIEW -->
-<section class="preview">
-    <h2 class="section-title">Popular E-Books</h2>
-
-    <div class="product-preview-grid">
-        <div class="preview-card"></div>
-        <div class="preview-card"></div>
-        <div class="preview-card"></div>
-    </div>
-
-    <div class="center">
-        <a href="products.html" class="cta-secondary">View All E-Books</a>
-    </div>
+<!-- CTA -->
+<section class="cta">
+  <h2>Start Learning Smarter Today</h2>
+  <p>Browse our growing collection of engineering e-books.</p>
+  <a href="products.html" class="primary-btn">Explore E-Books</a>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-    <h2 class="section-title">Loved By Thousands of Students</h2>
-
-    <div class="testimonial-grid">
-        <div class="testimonial-card">
-            <p>“The notes are clean, concise, and exactly what I needed for last-minute revision.”</p>
-            <h4>— Ankit (ECE)</h4>
-        </div>
-
-        <div class="testimonial-card">
-            <p>“Engibrief helped me clear my backlog. The explanations are super easy to follow.”</p>
-            <h4>— Priya (ME)</h4>
-        </div>
-
-        <div class="testimonial-card">
-            <p>“Minimal design, premium content. Better than most textbooks.”</p>
-            <h4>— Rohan (CSE)</h4>
-        </div>
-    </div>
-</section>
-
+<!-- FOOTER -->
 <footer class="footer">
-    <p>© 2025 Engibrief. All rights reserved.</p>
+  <p>© 2025 Engibrief. All rights reserved.</p>
 </footer>
 
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script src="app.js"></script>
-
+<script type="module" src="./app.js"></script>
 </body>
 </html>
