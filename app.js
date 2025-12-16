@@ -1,12 +1,13 @@
 /************************************************************
- * APP.JS – ENGIBRIEFS (CLEAN, FINAL, MODULAR)
+ * APP.JS – ENGIBRIEFS (STABLE, RESTORED)
  ************************************************************/
+console.log("🔥 app.js loaded");
 
-/* ==================== IMPORTS ==================== */
 import { firebaseConfig } from "./firebase-config.js";
 
-import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+/* ==================== FIREBASE IMPORTS ==================== */
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
   getAuth,
@@ -14,16 +15,17 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
-  sendPasswordResetEmail,
-  updateProfile
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
   getFirestore,
   collection,
   addDoc,
+  updateDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -35,54 +37,36 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 /* ==================== INIT ==================== */
-console.log("app.js loaded");
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ==================== AUTH STATE HANDLER ==================== */
-let authHandled = false;
-
+/* ==================== AUTH STATE ==================== */
 onAuthStateChanged(auth, async (user) => {
-  if (authHandled) return;
-  authHandled = true;
-
   const path = window.location.pathname;
-  /* ---------- NAVBAR AUTH UI ---------- */
-const authArea = document.getElementById("authArea");
-
-if (authArea) {
-  if (user) {
-    authArea.innerHTML = `
-      <div class="nav-user">
-        <span class="nav-username">
-          ${user.displayName || user.email}
-        </span>
-        <a href="profile.html" class="nav-link"></a>
-        <button class="logout-btn" onclick="logoutUser()">Logout</button>
-      </div>
-    `;
-  } else {
-    authArea.innerHTML = `
-      <a href="login.html" class="login-btn">Login</a>
-    `;
-  }
-}
-
 
   console.log("Auth state:", user ? user.email : "NO USER");
 
-  /* ---------- LOGIN PAGE ---------- */
-  if (path.includes("login.html")) {
+  // Navbar
+  const authArea = document.getElementById("authArea");
+  if (authArea) {
     if (user) {
-      window.location.replace("index.html");
+      authArea.innerHTML = `
+        <span>${user.displayName || user.email}</span>
+        <button onclick="logoutUser()">Logout</button>
+      `;
+    } else {
+      authArea.innerHTML = `<a href="login.html">Login</a>`;
     }
-    return;
   }
 
-  /* ---------- ADMIN PAGE ---------- */
+  // Login page redirect
+  if (path.includes("login.html") && user) {
+    window.location.replace("index.html");
+  }
+
+  // Admin protection
   if (path.includes("admin.html")) {
     if (!user) {
       window.location.replace("login.html");
@@ -90,33 +74,14 @@ if (authArea) {
     }
 
     const token = await user.getIdTokenResult(true);
-    console.log("Admin claims:", token.claims);
-
     if (!token.claims.admin) {
       alert("Admins only");
       window.location.replace("index.html");
-      return;
     }
-  }
-
-  /* ---------- PROFILE PAGE ---------- */
-  if (path.includes("profile.html")) {
-    if (!user) {
-      window.location.replace("login.html");
-      return;
-    }
-
-    const nameInput = document.getElementById("profileName");
-    const emailInput = document.getElementById("profileEmail");
-
-    if (nameInput) nameInput.value = user.displayName || "";
-    if (emailInput) emailInput.value = user.email || "";
   }
 });
 
 /* ==================== AUTH FUNCTIONS ==================== */
-
-// LOGIN
 async function loginUser() {
   const email = document.getElementById("loginEmail")?.value.trim();
   const password = document.getElementById("loginPassword")?.value;
@@ -134,14 +99,13 @@ async function loginUser() {
   }
 }
 
-// SIGNUP
 async function signupUser() {
   const name = document.getElementById("signupName")?.value.trim();
   const email = document.getElementById("signupEmail")?.value.trim();
   const password = document.getElementById("signupPassword")?.value;
 
   if (!name || !email || !password) {
-    alert("All fields are required");
+    alert("All fields required");
     return;
   }
 
@@ -154,93 +118,98 @@ async function signupUser() {
   }
 }
 
-// GOOGLE LOGIN
 async function googleLogin() {
-  try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-    window.location.replace("index.html");
-  } catch (err) {
-    alert(err.message);
-  }
+  const provider = new GoogleAuthProvider();
+  await signInWithPopup(auth, provider);
+  window.location.replace("index.html");
 }
 
-// FORGOT PASSWORD
 async function forgotPassword() {
   const email = document.getElementById("loginEmail")?.value;
+  if (!email) return alert("Enter email first");
 
-  if (!email) {
-    alert("Enter your email first");
-    return;
-  }
-
-  try {
-    await sendPasswordResetEmail(auth, email);
-    alert("Password reset email sent");
-  } catch (err) {
-    alert(err.message);
-  }
+  await sendPasswordResetEmail(auth, email);
+  alert("Password reset email sent");
 }
 
-// LOGOUT
 async function logoutUser() {
   await signOut(auth);
-  window.location.replace("login.html");
+  window.location.href = "login.html";
 }
 
 /* ==================== ADMIN UPLOAD ==================== */
-async function uploadEbook() {
-  try {
-    const title = document.getElementById("title")?.value.trim();
-    const description = document.getElementById("description")?.value.trim();
-    const price = Number(document.getElementById("price")?.value);
-    const tags = document.getElementById("tags")?.value
-      .split(",")
-      .map(t => t.trim())
-      .filter(Boolean);
+async function uploadEbook(event) {
+  event.preventDefault();
 
-    const coverImage = document.getElementById("coverImage")?.files[0];
+  try {
+    console.log("🚀 Upload started");
+
+    const title = document.getElementById("title")?.value.trim();
+    const subject = document.getElementById("subject")?.value.trim();
+    const price = Number(document.getElementById("price")?.value);
+    const coverFile = document.getElementById("coverImage")?.files[0];
     const pdfFile = document.getElementById("pdfFile")?.files[0];
 
-    if (!title || !price || !coverImage || !pdfFile) {
-      alert("All fields are required");
+    if (!title || !subject || !price || !coverFile || !pdfFile) {
+      alert("All fields required");
       return;
     }
 
-    if (pdfFile.type !== "application/pdf") {
-      alert("Only PDF files allowed");
-      return;
-    }
-
-    const ts = Date.now();
-
-    const coverRef = ref(storage, `ebooks/covers/${ts}-${coverImage.name}`);
-    await uploadBytes(coverRef, coverImage);
-    const coverURL = await getDownloadURL(coverRef);
-
-    const pdfRef = ref(storage, `ebooks/pdfs/${ts}-${pdfFile.name}`);
-    await uploadBytes(pdfRef, pdfFile);
-    const pdfURL = await getDownloadURL(pdfRef);
-
-    await addDoc(collection(db, "ebooks"), {
+    const docRef = await addDoc(collection(db, "ebooks"), {
       title,
-      description,
+      subject,
       price,
-      tags,
-      coverURL,
-      pdfURL,
+      isActive: true,
       createdAt: serverTimestamp()
     });
 
-    alert("E-book uploaded successfully");
-    document.getElementById("addProductForm")?.reset();
+    const coverRef = ref(storage, `ebooks/covers/${docRef.id}`);
+    await uploadBytes(coverRef, coverFile);
+    const coverURL = await getDownloadURL(coverRef);
+
+    const pdfRef = ref(storage, `ebooks/pdfs/${docRef.id}.pdf`);
+    await uploadBytes(pdfRef, pdfFile);
+    const pdfURL = await getDownloadURL(pdfRef);
+
+    await updateDoc(docRef, { coverURL, pdfURL });
+
+    alert("Ebook uploaded successfully");
+    document.getElementById("addProductForm").reset();
 
   } catch (err) {
-    alert("Upload failed: " + err.message);
+    console.error(err);
+    alert(err.message);
   }
 }
 
-/* ==================== EXPOSE TO HTML ==================== */
+/* ==================== DRAG & DROP ==================== */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".drop-zone").forEach(zone => {
+    const input = zone.querySelector("input");
+    if (!input) return;
+
+    zone.onclick = () => input.click();
+
+    zone.ondragover = e => {
+      e.preventDefault();
+      zone.classList.add("drag-over");
+    };
+
+    zone.ondragleave = () => zone.classList.remove("drag-over");
+
+    zone.ondrop = e => {
+      e.preventDefault();
+      zone.classList.remove("drag-over");
+      input.files = e.dataTransfer.files;
+      zone.querySelector("p").textContent = e.dataTransfer.files[0].name;
+    };
+  });
+
+  const form = document.getElementById("addProductForm");
+  if (form) form.addEventListener("submit", uploadEbook);
+});
+
+/* ==================== GLOBAL EXPORTS ==================== */
 window.loginUser = loginUser;
 window.signupUser = signupUser;
 window.googleLogin = googleLogin;

@@ -2,74 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Engibrief Admin</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard – Engibrief</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body>
+<body class="admin-body">
 
-<header class="admin-navbar">
-  <h2>Engibrief Admin Dashboard</h2>
-</header>
+  <!-- TOP BAR -->
+  <header class="admin-topbar">
+    <div class="admin-brand">Engibrief Admin</div>
+    <button class="admin-logout" onclick="logoutUser()">Logout</button>
+  </header>
 
-<section class="admin-container">
+  <!-- MAIN -->
+  <main class="admin-main">
 
-  <h2 class="section-title">Add New E-Book</h2>
+    <!-- CARD -->
+    <section class="admin-card">
 
-  <!-- ❌ NO AUTO SUBMIT -->
-  <form id="addProductForm" class="admin-form" onsubmit="return false;">
+      <h2 class="admin-title">Upload New E-Book</h2>
+      <p class="admin-subtitle">
+        Add a new ebook to the platform. It will appear instantly on the store.
+      </p>
 
-    <div class="form-group">
-      <label>Title</label>
-      <input type="text" id="title" placeholder="Enter title">
-    </div>
+        <form id="addProductForm" class="admin-form">
 
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="description"></textarea>
-    </div>
 
-    <div class="form-row">
-      <div class="form-group half">
-        <label>Price (₹)</label>
-        <input type="number" id="price">
-      </div>
 
-      <div class="form-group half">
-        <label>Tags</label>
-        <input type="text" id="tags">
-      </div>
-    </div>
+        <!-- TEXT INPUTS -->
+        <div class="admin-grid">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="title" placeholder="Ebook title" required />
+          </div>
 
-    <div class="form-group">
-      <label>Cover Image</label>
-      <input type="file" id="coverImage" accept="image/*">
-    </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="subject" placeholder="CSE / ECE / ME" required />
+          </div>
 
-    <div class="form-group">
-      <label>PDF File</label>
-      <input type="file" id="pdfFile" accept="application/pdf">
-    </div>
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" id="price" placeholder="299" required />
+          </div>
+        </div>
 
-    <!-- ✅ BUTTON MUST BE TYPE=BUTTON -->
-    <button
-      type="button"
-      class="admin-submit-btn"
-      onclick="uploadEbook()"
-    >
-      Upload Product
-    </button>
+        <!-- COVER IMAGE DROP ZONE -->
+        <div class="form-group">
+          <label>Cover Image</label>
+          <div class="drop-zone" data-type="image">
+            <p>Drag & drop cover image here<br><span>or click to browse</span></p>
+            <input type="file" id="coverImage" accept="image/*" hidden />
+          </div>
+        </div>
 
-  </form>
+        <!-- PDF DROP ZONE -->
+        <div class="form-group">
+          <label>PDF File</label>
+          <div class="drop-zone" data-type="pdf">
+            <p>Drag & drop PDF here<br><span>or click to browse</span></p>
+            <input type="file" id="pdfFile" accept="application/pdf" hidden />
+          </div>
+        </div>
 
-  <h2 class="section-title">Existing Products</h2>
-  <div id="adminProductList" class="admin-product-grid"></div>
+        <!-- STATUS -->
+        <div class="upload-status" id="uploadStatus"></div>
 
-</section>
+        <!-- PROGRESS -->
+        <div class="upload-progress">
+          <div class="upload-bar" id="uploadBar"></div>
+        </div>
 
-<!-- ✅ ONLY ONE SCRIPT, MODULE-BASED -->
-<script type="module" src="./app.js"></script>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" placeholder="Short description"></textarea>
+        </div>
 
+        <!-- SUBMIT -->
+        <button type="submit" class="admin-submit-btn">
+          Upload Ebook
+        </button>
+
+      </form>
+
+    </section>
+  </main>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>

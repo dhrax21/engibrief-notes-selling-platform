@@ -881,3 +881,186 @@
   }
 }
 
+
+
+/* ================= ADMIN UI ================= */
+
+.admin-body {
+  background: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+/* ---------- TOP BAR ---------- */
+.admin-topbar {
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.admin-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.admin-logout {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- MAIN ---------- */
+.admin-main {
+  max-width: 860px;
+  margin: 60px auto;
+  padding: 0 16px;
+}
+
+/* ---------- CARD ---------- */
+.admin-card {
+  background: white;
+  border-radius: 18px;
+  padding: 36px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.admin-title {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.admin-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+/* ---------- FORM ---------- */
+.admin-form .form-group {
+  margin-bottom: 18px;
+}
+
+.admin-form label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.admin-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.admin-form input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+/* ---------- GRID ---------- */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* ---------- UPLOAD STATUS ---------- */
+.upload-status {
+  font-size: 0.9rem;
+  margin: 12px 0;
+  color: #475569;
+}
+
+/* ---------- PROGRESS ---------- */
+.upload-progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.upload-bar {
+  height: 100%;
+  width: 0%;
+  background: #4f46e5;
+  transition: width 0.3s ease;
+}
+
+/* ---------- SUBMIT ---------- */
+.admin-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.admin-submit-btn:hover {
+  background: #4338ca;
+}
+
+.admin-submit-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 640px) {
+  .admin-card {
+    padding: 26px 22px;
+  }
+}
+
+/* ---------- DRAG & DROP ---------- */
+.drop-zone {
+  border: 2px dashed #c7d2fe;
+  border-radius: 14px;
+  padding: 26px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #f8fafc;
+}
+
+.drop-zone p {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.drop-zone span {
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.drop-zone.drag-over {
+  background: #eef2ff;
+  border-color: #4f46e5;
+}
+
+.drop-zone.file-selected {
+  border-style: solid;
+  background: #eef2ff;
+}
+
+.drop-zone.file-selected p {
+  color: #0f172a;
+  font-weight: 600;
+}
+
