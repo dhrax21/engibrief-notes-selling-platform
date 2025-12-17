@@ -1029,38 +1029,34 @@
 
 /* ---------- DRAG & DROP ---------- */
 .drop-zone {
-  border: 2px dashed #c7d2fe;
-  border-radius: 14px;
-  padding: 26px;
+  border: 2px dashed #c7c7c7;
+  padding: 28px;
+  border-radius: 10px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25s ease;
-  background: #f8fafc;
-}
-
-.drop-zone p {
-  font-size: 0.9rem;
-  color: #475569;
-  line-height: 1.4;
-}
-
-.drop-zone span {
-  color: #4f46e5;
-  font-weight: 600;
+  background: #fafafa;
+  transition: 0.2s ease;
+  position: relative;
 }
 
 .drop-zone.drag-over {
-  background: #eef2ff;
   border-color: #4f46e5;
-}
-
-.drop-zone.file-selected {
-  border-style: solid;
   background: #eef2ff;
 }
 
-.drop-zone.file-selected p {
-  color: #0f172a;
+.drop-text {
   font-weight: 600;
+  color: #333;
 }
 
+.drop-subtext {
+  display: block;
+  font-size: 13px;
+  color: #777;
+  margin-top: 6px;
+}
+
+/* CRITICAL: prevents inner text blocking drop */
+.drop-zone * {
+  pointer-events: none;
+}

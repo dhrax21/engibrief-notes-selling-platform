@@ -186,28 +186,57 @@ async function uploadEbook(event) {
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".drop-zone").forEach(zone => {
     const input = zone.querySelector("input");
-    if (!input) return;
+    const text = zone.querySelector(".drop-text");
+    const subtext = zone.querySelector(".drop-subtext");
 
-    zone.onclick = () => input.click();
+    if (!input || !text) return;
 
-    zone.ondragover = e => {
+    // Click opens file picker
+    zone.addEventListener("click", () => {
+      input.click();
+    });
+
+    // Allow drop
+    zone.addEventListener("dragover", (e) => {
       e.preventDefault();
       zone.classList.add("drag-over");
-    };
+    });
 
-    zone.ondragleave = () => zone.classList.remove("drag-over");
+    zone.addEventListener("dragleave", () => {
+      zone.classList.remove("drag-over");
+    });
 
-    zone.ondrop = e => {
+    // Handle drop
+    zone.addEventListener("drop", (e) => {
       e.preventDefault();
       zone.classList.remove("drag-over");
-      input.files = e.dataTransfer.files;
-      zone.querySelector("p").textContent = e.dataTransfer.files[0].name;
-    };
-  });
 
-  const form = document.getElementById("addProductForm");
-  if (form) form.addEventListener("submit", uploadEbook);
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+
+      // Attach file to hidden input (correct way)
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+
+      // Update UI
+      text.textContent = file.name;
+      if (subtext) subtext.style.display = "none";
+
+      console.log("✅ File attached:", file.name);
+    });
+
+    // Handle manual selection
+    input.addEventListener("change", () => {
+      if (!input.files.length) return;
+      text.textContent = input.files[0].name;
+      if (subtext) subtext.style.display = "none";
+    });
+  });
 });
+
+
+
 
 /* ==================== GLOBAL EXPORTS ==================== */
 window.loginUser = loginUser;
@@ -216,3 +245,7 @@ window.googleLogin = googleLogin;
 window.forgotPassword = forgotPassword;
 window.logoutUser = logoutUser;
 window.uploadEbook = uploadEbook;
+
+
+
+
