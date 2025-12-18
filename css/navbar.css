@@ -1,0 +1,49 @@
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #4f46e5;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-links a {
+  font-weight: 500;
+  color: #475569;
+}
+
+.nav-links a:hover {
+  color: #4f46e5;
+}
+
+.admin-link {
+  display: none;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+/* Visible only for admin */
+.is-admin .admin-link {
+  display: inline-block;
+}
+

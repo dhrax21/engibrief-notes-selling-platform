@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>E-Books – Engibrief</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./css/product.css">
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 <!-- NAVBAR -->
@@ -98,6 +99,20 @@
     </div>
   </div>
 </main>
+
+<section class="admin-upload">
+  <h2>Upload New E-Book</h2>
+
+  <input type="text" id="title" placeholder="E-book Title">
+  <input type="text" id="branch" placeholder="Branch (CSE, ECE)">
+  <input type="number" id="price" placeholder="Price">
+
+  <input type="file" id="coverFile" accept="image/*">
+  <input type="file" id="pdfFile" accept="application/pdf">
+
+  <button onclick="uploadEbook()">Upload</button>
+</section>
+
 
 <footer class="footer">
   <div class="footer-bottom">

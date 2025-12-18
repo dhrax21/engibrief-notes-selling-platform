@@ -3,97 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard – Engibrief</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Admin Upload | EngiBriefs</title>
+
+  <link rel="icon" href="./assets/google-icon.png" />
+  <link rel="stylesheet" href="./css/admin.css" />
 </head>
 
-<body class="admin-body">
+<body>
+  <div class="admin-container">
 
-  <!-- TOP BAR -->
-  <header class="admin-topbar">
-    <div class="admin-brand">Engibrief Admin</div>
-    <button class="admin-logout" onclick="logoutUser()">Logout</button>
-  </header>
+    <!-- Header -->
+    <header class="admin-header">
+      <h1>📘 Upload New Content</h1>
+      <p class="subtitle">Add notes, PDFs, and cover images</p>
+    </header>
 
-  <!-- MAIN -->
-  <main class="admin-main">
+    <!-- Upload Card -->
+    <section class="card">
+      <form id="uploadForm">
 
-    <!-- CARD -->
-    <section class="admin-card">
-
-      <h2 class="admin-title">Upload New E-Book</h2>
-      <p class="admin-subtitle">
-        Add a new ebook to the platform. It will appear instantly on the store.
-      </p>
-
-        <form id="addProductForm" class="admin-form">
-
-
-
-        <!-- TEXT INPUTS -->
-        <div class="admin-grid">
-          <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="title" placeholder="Ebook title" required />
-          </div>
-
-          <div class="form-group">
-            <label>Subject</label>
-            <input type="text" id="subject" placeholder="CSE / ECE / ME" required />
-          </div>
-
-          <div class="form-group">
-            <label>Price (₹)</label>
-            <input type="number" id="price" placeholder="299" required />
-          </div>
+        <!-- Title -->
+        <div class="field">
+          <label for="title">Title</label>
+          <input type="text" id="title" placeholder="Engineering Mathematics – Unit 1" required />
         </div>
 
-        <!-- COVER IMAGE DROP ZONE -->
-      <div class="form-group">
-      <label>Cover Image</label>
-      <div class="drop-zone" data-type="image">
-        <p class="drop-text">
-          Drag & drop cover image here<br>
-          <span class="drop-subtext">or click to browse</span>
-        </p>
-        <input type="file" id="coverImage" accept="image/*" hidden />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>PDF File</label>
-      <div class="drop-zone" data-type="pdf">
-        <p class="drop-text">
-          Drag & drop PDF here<br>
-          <span class="drop-subtext">or click to browse</span>
-        </p>
-        <input type="file" id="pdfFile" accept="application/pdf" hidden />
-      </div>
-    </div>
-
-        <!-- STATUS -->
-        <div class="upload-status" id="uploadStatus"></div>
-
-        <!-- PROGRESS -->
-        <div class="upload-progress">
-          <div class="upload-bar" id="uploadBar"></div>
+        <!-- Subject -->
+        <div class="field">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" placeholder="Mathematics" required />
         </div>
 
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="description" placeholder="Short description"></textarea>
+        <!-- Department -->
+        <div class="field">
+          <label for="department">Department</label>
+          <input
+            type="text"
+            id="department"
+            placeholder="Computer Science / Mechanical / Electrical"
+            required
+          />
         </div>
 
-        <!-- SUBMIT -->
-        <button type="submit" class="admin-submit-btn">
-          Upload Ebook
+
+        <!-- Price -->
+        <div class="field">
+          <label for="price">Price (₹)</label>
+          <input type="number" id="price" placeholder="99" required />
+        </div>
+
+        <!-- Cover Image -->
+        <div class="field">
+          <label for="coverFile">Cover Image</label>
+          <input type="file" id="coverFile" accept="image/*" required />
+          <small>JPG / PNG · Max 5MB</small>
+        </div>
+
+        <!-- PDF -->
+        <div class="field">
+          <label for="pdfFile">PDF File</label>
+          <input type="file" id="pdfFile" accept="application/pdf" required />
+          <small>PDF only · Max 20MB</small>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary">
+          Upload Content
         </button>
 
       </form>
 
     </section>
-  </main>
 
-  <script type="module" src="./app.js"></script>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="./js/firebase.js"></script>
+  <script type="module" src="./js/auth.js"></script>
+  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/admin-upload.js"></script>
+  <!-- <script type="module" src="./js/firestore-test.js"></script> -->
+
 </body>
 </html>

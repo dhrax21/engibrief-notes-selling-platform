@@ -1,0 +1,274 @@
+/* =========================
+   VARIABLES
+========================= */
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --text-dark: #0f172a;
+  --text-light: #475569;
+  --border-light: #e5e7eb;
+  --bg-light: #f8fafc;
+  --radius: 12px;
+  --max-width: 1200px;
+}
+
+/* =========================
+   PAGE HERO
+========================= */
+.page-hero {
+  text-align: center;
+  padding: 70px 24px 50px;
+  background: linear-gradient(180deg, #eef2ff, #ffffff);
+}
+
+.page-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.page-hero p {
+  color: var(--text-light);
+  max-width: 600px;
+  margin: auto;
+  font-size: 1.05rem;
+}
+
+/* =========================
+   FILTER BAR
+========================= */
+.filter-bar {
+  max-width: var(--max-width);
+  margin: 30px auto 20px;
+  padding: 0 24px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-bar select {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  font-size: 0.95rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* =========================
+   EBOOK GRID
+========================= */
+.ebook-container {
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 40px 24px 80px;
+}
+
+.ebook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+/* =========================
+   EBOOK CARD
+========================= */
+.ebook-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ebook-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+}
+
+.ebook-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  background: var(--bg-light);
+}
+
+/* =========================
+   CARD CONTENT
+========================= */
+.ebook-info {
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ebook-info h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.ebook-desc {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+/* =========================
+   META
+========================= */
+.ebook-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ebook-price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.ebook-tag {
+  background: #eef2ff;
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.ebook-btn {
+  border: none;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.ebook-btn:hover {
+  background: var(--primary-dark);
+}
+
+.ebook-btn:active {
+  transform: scale(0.98);
+}
+
+/* =========================
+   FOOTER (MINIMAL)
+========================= */
+.footer {
+  background: #020617;
+  color: #cbd5f5;
+  padding: 30px 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 600px) {
+  .page-hero h1 {
+    font-size: 2rem;
+  }
+
+  .ebook-card img {
+    height: 190px;
+  }
+}
+
+
+/* =========================
+   ADMIN UPLOAD SECTION
+========================= */
+
+.admin-upload {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 32px 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+/* Title */
+.admin-upload h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  text-align: center;
+  color: #0f172a;
+}
+
+/* Inputs */
+.admin-upload input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-upload input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* File Inputs */
+.admin-upload input[type="file"] {
+  padding: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+/* Button */
+.admin-upload button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.admin-upload button:hover {
+  background: #4338ca;
+}
+
+.admin-upload button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .admin-upload {
+    padding: 26px 20px;
+  }
+
+  .admin-upload h2 {
+    font-size: 1.4rem;
+  }
+}

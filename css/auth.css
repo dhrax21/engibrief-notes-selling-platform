@@ -1,0 +1,118 @@
+/* =========================
+   AUTH PAGE – LOGIN
+========================= */
+
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --text-dark: #0f172a;
+  --text-light: #475569;
+  --border-light: #e5e7eb;
+  --bg-light: #f8fafc;
+  --radius: 12px;
+}
+
+/* PAGE WRAPPER */
+.auth-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* CARD */
+.auth-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  padding: 48px 40px;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  text-align: center;
+}
+
+/* HEADING */
+.auth-card h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: var(--text-light);
+  margin-bottom: 32px;
+  font-size: 0.95rem;
+}
+
+/* INPUTS */
+.auth-input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* BUTTON */
+.auth-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.auth-btn:hover {
+  background: var(--primary-dark);
+}
+
+.auth-btn:active {
+  transform: scale(0.98);
+}
+
+/* LINKS */
+.auth-card a {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--primary);
+}
+
+.auth-card a:hover {
+  text-decoration: underline;
+}
+
+.auth-link {
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.auth-link a {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 36px 28px;
+  }
+}
