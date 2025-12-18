@@ -1,72 +1,45 @@
-import { auth } from "./firebase.js";
-import { onAuthStateChanged, signOut } from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { supabase } from "./supabase.js";
 
 console.log("📦 app.js loaded");
 
-onAuthStateChanged(auth, async (user) => {
-  console.log("👤 Auth state:", user?.email || "NO USER");
-
-  /* =========================
-     NAVBAR STATE
-  ========================= */
+/* =========================
+   AUTH STATE LISTENER
+========================= */
+supabase.auth.onAuthStateChange((_event, session) => {
+  const user = session?.user || null;
   const authArea = document.getElementById("authArea");
-  if (authArea) {
-    if (user) {
-      authArea.innerHTML = `
-        <span class="user-name">${user.displayName || user.email}</span>
-        <button class="logout-btn" onclick="logoutUser()">Logout</button>
-      `;
-    } else {
-      authArea.innerHTML = `<a href="login.html">Login</a>`;
-    }
-  }
 
-  /* =========================
-     ADMIN CHECK (Pattern 2)
-  ========================= */
+  if (!authArea) return;
+
   if (user) {
-    const token = await user.getIdTokenResult();
-    console.log("🔑 Admin claims:", token.claims);
+    authArea.innerHTML = `
+      <span class="user-name">${user.email}</span>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    `;
 
-    if (token.claims.admin) {
-      document.body.classList.add("is-admin");
-    }
-  }
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", logoutUser);
 
-  /* =========================
-     ADMIN PAGE PROTECTION
-  ========================= */
-  if (location.pathname.includes("admin.html")) {
-    if (!user) {
-      location.href = "login.html";
-      return;
-    }
-
-    const token = await user.getIdTokenResult();
-    if (!token.claims.admin) {
-      alert("Admins only");
-      location.href = "index.html";
-      return;
-    }
-  }
-
-  /* =========================
-     PROFILE PAGE
-  ========================= */
-  if (location.pathname.includes("profile.html") && user) {
-    const emailEl = document.getElementById("profileEmail");
-    const nameEl = document.getElementById("profileName");
-
-    if (emailEl) emailEl.value = user.email;
-    if (nameEl) nameEl.value = user.displayName || "";
+  } else {
+    authArea.innerHTML = `<a href="login.html">Login</a>`;
   }
 });
 
 /* =========================
-   LOGOUT
+   LOGOUT FUNCTION
 ========================= */
-window.logoutUser = async () => {
-  await signOut(auth);
-  location.href = "index.html";
-};
+async function logoutUser() {
+  console.log("🚪 Logging out...");
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("❌ Logout failed:", error);
+    alert("Logout failed");
+    return;
+  }
+
+  console.log("✅ Logged out");
+  window.location.href = "index.html";
+}

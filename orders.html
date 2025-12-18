@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Orders - Engibrief</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>My Orders | Engibrief</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
-
 <header class="navbar">
-    <div class="logo">Engibrief</div>
+  <div class="logo">Engibrief</div>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="products.html">E-Books</a>
+    <a href="orders.html" class="active">My Orders</a>
+  </nav>
 </header>
 
-<section class="orders">
-    <h2>Your Downloads</h2>
-    <div id="ordersList"></div>
-</section>
-<script type="module" src="./app.js"></script>
+<main class="orders-container">
+  <h1>My Orders</h1>
+  <div id="ordersGrid" class="orders-grid"></div>
+</main>
+
+<script type="module" src="./js/orders.js"></script>
 </body>
 </html>

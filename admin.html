@@ -10,79 +10,123 @@
 </head>
 
 <body>
-  <div class="admin-container">
 
-    <!-- Header -->
-    <header class="admin-header">
-      <h1>📘 Upload New Content</h1>
-      <p class="subtitle">Add notes, PDFs, and cover images</p>
-    </header>
+<!-- =========================
+     ADMIN ROUTE GUARD
+     (Runs BEFORE UI loads)
+========================= -->
+<script type="module">
+  import { supabase } from "./js/supabase.js";
 
-    <!-- Upload Card -->
-    <section class="card">
-      <form id="uploadForm">
+  const { data: { user } } = await supabase.auth.getUser();
 
-        <!-- Title -->
-        <div class="field">
-          <label for="title">Title</label>
-          <input type="text" id="title" placeholder="Engineering Mathematics – Unit 1" required />
-        </div>
+  if (!user) {
+    window.location.replace("login.html");
+  } else {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-        <!-- Subject -->
-        <div class="field">
-          <label for="subject">Subject</label>
-          <input type="text" id="subject" placeholder="Mathematics" required />
-        </div>
+    if (profile?.role !== "admin") {
+      window.location.replace("index.html");
+    }
+  }
+</script>
 
-        <!-- Department -->
-        <div class="field">
-          <label for="department">Department</label>
-          <input
-            type="text"
-            id="department"
-            placeholder="Computer Science / Mechanical / Electrical"
-            required
-          />
-        </div>
+<!-- =========================
+     ADMIN UI
+========================= -->
+<div class="admin-container">
 
+  <!-- Header -->
+  <header class="admin-header">
+    <h1>📘 Upload New Content</h1>
+    <p class="subtitle">Add notes, PDFs, and cover images</p>
+  </header>
 
-        <!-- Price -->
-        <div class="field">
-          <label for="price">Price (₹)</label>
-          <input type="number" id="price" placeholder="99" required />
-        </div>
+  <!-- Upload Card -->
+  <section class="card">
+    <form id="uploadForm">
 
-        <!-- Cover Image -->
-        <div class="field">
-          <label for="coverFile">Cover Image</label>
-          <input type="file" id="coverFile" accept="image/*" required />
-          <small>JPG / PNG · Max 5MB</small>
-        </div>
+      <div class="field">
+        <label for="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          placeholder="Engineering Mathematics – Unit 1"
+          required
+        />
+      </div>
 
-        <!-- PDF -->
-        <div class="field">
-          <label for="pdfFile">PDF File</label>
-          <input type="file" id="pdfFile" accept="application/pdf" required />
-          <small>PDF only · Max 20MB</small>
-        </div>
+      <div class="field">
+        <label for="subject">Subject</label>
+        <input
+          type="text"
+          id="subject"
+          placeholder="Mathematics"
+          required
+        />
+      </div>
 
-        <!-- Submit -->
-        <button type="submit" class="btn-primary">
-          Upload Content
-        </button>
+      <div class="field">
+        <label for="department">Department</label>
+        <input
+          type="text"
+          id="department"
+          placeholder="Computer Science / Mechanical / Electrical"
+          required
+        />
+      </div>
 
-      </form>
+      <div class="field">
+        <label for="price">Price (₹)</label>
+        <input
+          type="number"
+          id="price"
+          placeholder="99"
+          required
+        />
+      </div>
 
-    </section>
+      <div class="field">
+        <label for="coverFile">Cover Image</label>
+        <input
+          type="file"
+          id="coverFile"
+          accept="image/*"
+          required
+        />
+        <small>JPG / PNG · Max 5MB</small>
+      </div>
 
-  </div>
+      <div class="field">
+        <label for="pdfFile">PDF File</label>
+        <input
+          type="file"
+          id="pdfFile"
+          accept="application/pdf"
+          required
+        />
+        <small>PDF only · Max 20MB</small>
+      </div>
 
-  <!-- Scripts -->
-  <script type="module" src="./js/firebase.js"></script>
-  <script type="module" src="./js/auth.js"></script>
-  <script type="module" src="./js/app.js"></script>
-  <script type="module" src="./js/admin-upload.js"></script>
-  <!-- <script type="module" src="./js/firestore-test.js"></script> -->
+      <button type="submit" class="btn-primary">
+        Upload Content
+      </button>
+
+    </form>
+  </section>
+
+</div>
+
+<!-- =========================
+     SCRIPTS
+========================= -->
+
+<!-- Supabase Admin Upload Logic -->
+<script type="module" src="./js/admin-upload.js"></script>
 
 </body>
 </html>

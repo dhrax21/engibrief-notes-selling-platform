@@ -309,3 +309,227 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  line-height: 1.6;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.nav-links a {
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: 500;
+  color: #475569;
+}
+
+.nav-links a:hover {
+  color: #2563eb;
+}
+
+/* =========================
+   SUPPORT HERO
+========================= */
+.support-hero {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #ffffff;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.support-hero-content {
+  max-width: 720px;
+  margin: auto;
+}
+
+.support-hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.support-hero p {
+  font-size: 1.05rem;
+  opacity: 0.95;
+}
+
+/* =========================
+   SUPPORT CONTAINER
+========================= */
+.support-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 60px 20px;
+}
+
+/* =========================
+   SUPPORT GRID
+========================= */
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 70px;
+}
+
+.support-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.support-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.support-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.support-card p {
+  font-size: 0.95rem;
+  color: #475569;
+  margin-bottom: 14px;
+}
+
+.support-action {
+  font-weight: 600;
+  text-decoration: none;
+  color: #2563eb;
+}
+
+.support-action:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   SECTION TITLE
+========================= */
+.section-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* =========================
+   SUPPORT FORM
+========================= */
+.support-form {
+  max-width: 520px;
+  margin: auto;
+  background: #ffffff;
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.support-form input,
+.support-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-family: inherit;
+}
+
+.support-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+  border-color: #2563eb;
+}
+
+/* =========================
+   SUBMIT BUTTON
+========================= */
+.support-submit {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.support-submit:hover {
+  background: #1e40af;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 640px) {
+  .support-hero h1 {
+    font-size: 1.9rem;
+  }
+
+  .support-form {
+    padding: 26px;
+  }
+
+  .nav-links a {
+    margin-left: 12px;
+  }
+}

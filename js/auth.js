@@ -1,18 +1,7 @@
-import {
-  signInWithEmailAndPassword,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-import { auth } from "./firebase.js";
-
-
-
-import {
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { supabase } from "./supabase.js";
 
 /* SIGNUP */
-window.signupUser = async function () {
+window.signupUser = async () => {
   const email = document.getElementById("signupEmail")?.value;
   const password = document.getElementById("signupPassword")?.value;
 
@@ -21,12 +10,22 @@ window.signupUser = async function () {
     return;
   }
 
-  await createUserWithEmailAndPassword(auth, email, password);
-  window.location.href = "index.html";
+  const { error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Account created. Please log in.");
+  window.location.href = "login.html";
 };
 
 /* LOGIN */
-window.loginUser = async function () {
+window.loginUser = async () => {
   const email = document.getElementById("loginEmail")?.value;
   const password = document.getElementById("loginPassword")?.value;
 
@@ -35,14 +34,23 @@ window.loginUser = async function () {
     return;
   }
 
-  await signInWithEmailAndPassword(auth, email, password);
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
   window.location.href = "index.html";
 };
 
 /* LOGOUT */
-window.logoutUser = async function () {
-  await signOut(auth);
+window.logoutUser = async () => {
+  await supabase.auth.signOut();
   window.location.href = "login.html";
 };
 
-console.log("🔐 Auth module loaded");
+console.log("🔐 Supabase auth module loaded");

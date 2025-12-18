@@ -1,24 +1,16 @@
 {
   "name": "engibrief",
   "version": "1.0.0",
-  "description": "**A modern platform for selling and delivering engineering e-books**",
-  "main": "app.js",
+  "description": "A modern platform for selling and delivering engineering e-books",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "frontend": "echo \"Run frontend using Live Server or VS Code\"",
+    "backend": "cd backend && npm start"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dhrax21/engibrief-notes-selling-platform.git"
+    "url": "https://github.com/dhrax21/engibrief-notes-selling-platform.git"
   },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/dhrax21/engibrief-notes-selling-platform/issues"
-  },
-  "homepage": "https://github.com/dhrax21/engibrief-notes-selling-platform#readme",
-  "dependencies": {
-    "firebase-admin": "^13.6.0"
-  }
+  "license": "ISC"
 }

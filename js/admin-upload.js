@@ -1,80 +1,113 @@
-import { ref, uploadBytes, getDownloadURL }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { supabase } from "./supabase.js";
 
-import { collection, addDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+if (!window.__adminUploadInitialized) {
+  window.__adminUploadInitialized = true;
 
-import { auth, db, storage } from "./firebase.js";
+  document.addEventListener("DOMContentLoaded", async () => {
+    const form = document.getElementById("uploadForm");
+    if (!form) return;
 
-// document.addEventListener("DOMContentLoaded", () => {
-//   const form = document.getElementById("uploadForm");
+    /* =========================
+       AUTH & ROLE CHECK
+    ========================= */
+    const { data: { user } } = await supabase.auth.getUser();
 
-//   form.addEventListener("submit", async (e) => {
-//     e.preventDefault();
+    if (!user) {
+      alert("Please login as admin");
+      location.href = "login.html";
+      return;
+    }
 
-//     // 1️⃣ Read inputs
-//     const title = document.getElementById("title").value.trim();
-//     const subject = document.getElementById("subject").value.trim();
-//     const department = document.getElementById("department").value.trim();
-//     const price = Number(document.getElementById("price").value);
+    const { data: profile, error: roleError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-//     const imageFile = document.getElementById("coverFile").files[0];
-//     const pdfFile = document.getElementById("pdfFile").files[0];
+    if (roleError || profile?.role !== "admin") {
+      alert("Admins only");
+      location.href = "index.html";
+      return;
+    }
 
-//     if (!title || !subject || !department || !price) {
-//       alert("All fields are required");
-//       return;
-//     }
+    /* =========================
+       FORM SUBMIT
+    ========================= */
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-//     if (!imageFile || !pdfFile) {
-//       alert("Cover image and PDF are required");
-//       return;
-//     }
+      console.log("🚀 Upload started");
 
-//     try {
-//       const timestamp = Date.now();
+      const title = document.getElementById("title").value.trim();
+      const subject = document.getElementById("subject").value.trim();
+      const departmentRaw = document.getElementById("department").value.trim();
+      const price = Number(document.getElementById("price").value);
 
-//       // 2️⃣ Upload cover image
-//       const imageRef = ref(
-//         storage,
-//         `covers/${timestamp}-${imageFile.name}`
-//       );
-//       await uploadBytes(imageRef, imageFile);
-//       const coverURL = await getDownloadURL(imageRef);
+      const coverFile = document.getElementById("coverFile").files[0];
+      const pdfFile = document.getElementById("pdfFile").files[0];
 
-//       // 3️⃣ Upload PDF
-//       const pdfRef = ref(
-//         storage,
-//         `pdfs/${timestamp}-${pdfFile.name}`
-//       );
-//       await uploadBytes(pdfRef, pdfFile, {
-//         contentType: "application/pdf"
-//       });
-//       const pdfURL = await getDownloadURL(pdfRef);
+      if (!title || !subject || !departmentRaw || !price) {
+        alert("All fields required");
+        return;
+      }
 
-//       console.log("➡️ Saving metadata to Firestore...");
+      if (!coverFile || !pdfFile) {
+        alert("Cover image and PDF required");
+        return;
+      }
 
-//       // 4️⃣ Save metadata to Firestore
-//       await addDoc(collection(db, "uploads"), {
-//         title,
-//         subject,
-//         department,
-//         price,
-//         coverURL,
-//         pdfURL,
-//         createdAt: serverTimestamp(),
-//         uploadedBy: auth.currentUser.email
-//       });
+      const department = departmentRaw.toLowerCase();
+      const timestamp = Date.now();
 
-//       console.log("✅ Saved to Firestore");
+      try {
+        /* =========================
+           UPLOAD COVER IMAGE
+        ========================= */
+        const coverPath = `covers/${department}/${timestamp}-${coverFile.name}`;
 
-//       alert("Upload successful");
-//       form.reset();
+        const { error: coverError } = await supabase.storage
+          .from("ebooks")
+          .upload(coverPath, coverFile);
 
-//     } catch (err) {
-//       console.error("❌ Upload or Firestore failed:", err);
-//       alert("Upload failed: " + err.message);
-//     }
-//   });
-// });
+        if (coverError) throw coverError;
 
+        /* =========================
+           UPLOAD PDF
+        ========================= */
+        const pdfPath = `${department}/${timestamp}-${pdfFile.name}`;
+
+        const { error: pdfError } = await supabase.storage
+          .from("ebooks")
+          .upload(pdfPath, pdfFile);
+
+        if (pdfError) throw pdfError;
+
+        /* =========================
+           SAVE METADATA TO DB
+        ========================= */
+        const { error: dbError } = await supabase
+          .from("ebooks")
+          .insert([
+            {
+              title,
+              subject,
+              department: department.toUpperCase(),
+              price,
+              pdf_path: pdfPath,
+              cover_path: coverPath
+            }
+          ]);
+
+        if (dbError) throw dbError;
+
+        console.log("✅ Upload complete");
+        alert("Upload successful");
+        form.reset();
+
+      } catch (err) {
+        console.error("❌ Upload failed:", err);
+        alert(err.message || "Upload failed");
+      }
+    });
+  });
+}

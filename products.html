@@ -4,10 +4,13 @@
   <meta charset="UTF-8">
   <title>E-Books – Engibrief</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./css/product.css">
+
   <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/product.css">
 </head>
+
 <body>
+
 <!-- NAVBAR -->
 <header class="navbar">
   <div class="logo">Engibrief</div>
@@ -18,108 +21,48 @@
     <div id="authArea"></div>
   </nav>
 </header>
+
 <!-- PAGE HEADER -->
 <section class="page-hero">
   <h1>Engineering E-Books</h1>
   <p>Exam-focused notes written to save time and boost understanding.</p>
 </section>
-<!-- FILTER BAR (UI ONLY) -->
+
+<!-- FILTER BAR -->
 <section class="filter-bar">
-  <select>
-    <option>All Branches</option>
-    <option>CSE</option>
-    <option>ECE</option>
-    <option>ME</option>
+  <select id="departmentFilter">
+    <option value="ALL">All Branches</option>
+    <option value="CSE">CSE</option>
+    <option value="ECE">ECE</option>
+    <option value="ME">ME</option>
   </select>
-  <select>
-    <option>Sort by</option>
-    <option>Newest</option>
-    <option>Price: Low to High</option>
-    <option>Price: High to Low</option>
+
+  <select id="sortFilter">
+    <option value="newest">Newest</option>
+    <option value="low">Price: Low to High</option>
+    <option value="high">Price: High to Low</option>
   </select>
 </section>
+
 <!-- EBOOK GRID -->
 <main class="ebook-container">
-  <div class="ebook-grid">
-    <!-- CARD -->
-    <div class="ebook-card">
-      <img src="assets/sample-cover.jpg" alt="Ebook cover">
-      <div class="ebook-info">
-        <h3>Data Structures & Algorithms</h3>
-        <p class="ebook-desc">
-          Clear explanations with examples and exam-ready problems.
-        </p>
-        <div class="ebook-meta">
-          <span class="ebook-price">₹299</span>
-          <span class="ebook-tag">CSE</span>
-        </div>
-        <button class="ebook-btn">View Details</button>
-      </div>
-    </div>
-    <!-- Duplicate cards for layout preview -->
-    <div class="ebook-card">
-      <img src="assets/sample-cover.jpg">
-      <div class="ebook-info">
-        <h3>Operating Systems</h3>
-        <p class="ebook-desc">Simplified notes for semester & GATE prep.</p>
-        <div class="ebook-meta">
-          <span class="ebook-price">₹249</span>
-          <span class="ebook-tag">CSE</span>
-        </div>
-        <button class="ebook-btn">View Details</button>
-      </div>
-    </div>
-     <div class="ebook-card">
-      <img src="assets/sample-cover.jpg" alt="Ebook cover">
-      <div class="ebook-info">
-        <h3>Strength Of Materials</h3>
-        <p class="ebook-desc">
-          Clear explanations with examples and exam-ready problems.
-        </p>
-        <div class="ebook-meta">
-          <span class="ebook-price">₹299</span>
-          <span class="ebook-tag">CSE</span>
-        </div>
-        <button class="ebook-btn">View Details</button>
-      </div>
-    </div>
-     <div class="ebook-card">
-      <img src="assets/sample-cover.jpg" alt="Ebook cover">
-      <div class="ebook-info">
-        <h3>Building Materials</h3>
-        <p class="ebook-desc">
-          Clear explanations with examples and exam-ready problems.
-        </p>
-        <div class="ebook-meta">
-          <span class="ebook-price">₹299</span>
-          <span class="ebook-tag">CSE</span>
-        </div>
-        <button class="ebook-btn">View Details</button>
-      </div>
-    </div>
+  <div class="ebook-grid" id="ebookGrid">
+    <!-- Rendered dynamically -->
   </div>
 </main>
 
-<section class="admin-upload">
-  <h2>Upload New E-Book</h2>
-
-  <input type="text" id="title" placeholder="E-book Title">
-  <input type="text" id="branch" placeholder="Branch (CSE, ECE)">
-  <input type="number" id="price" placeholder="Price">
-
-  <input type="file" id="coverFile" accept="image/*">
-  <input type="file" id="pdfFile" accept="application/pdf">
-
-  <button onclick="uploadEbook()">Upload</button>
-</section>
 
 
-<footer class="footer">
-  <div class="footer-bottom">
-    © 2025 Engibrief. All rights reserved.
-  </div>
-</footer>
+<!-- SCRIPTS -->
+<script type="module" src="./js/supabase.js"></script>
+<script type="module" src="./js/app.js"></script>
+<script type="module" src="./js/product.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<script type="module" src="./app.js"></script>
+
 </body>
+
+
 </html>
+
+
