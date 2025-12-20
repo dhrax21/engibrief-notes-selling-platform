@@ -1,57 +1,79 @@
 import { supabase } from "./supabase.js";
 
-const grid = document.getElementById("ordersGrid");
+document.addEventListener("DOMContentLoaded", async () => {
 
-/* =========================
-   AUTH CHECK
-========================= */
-const { data: { user } } = await supabase.auth.getUser();
+  const grid = document.getElementById("ordersGrid");
+  if (!grid) {
+    console.error("❌ ordersGrid not found in DOM");
+    return;
+  }
 
-if (!user) {
-  location.href = "login.html";
-}
+  /* =========================
+     AUTH CHECK
+  ========================= */
+  const { data: { user } } = await supabase.auth.getUser();
 
-/* =========================
-   FETCH ORDERS
-========================= */
-const { data, error } = await supabase
-  .from("purchases")
-  .select(`
-    id,
-    ebooks (
-      title,
-      pdf_path
-    )
-  `)
-  .eq("user_id", user.id);
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-if (error) {
-  alert("Failed to load orders");
-  console.error(error);
-}
+  /* =========================
+     FETCH PAID ORDERS ONLY
+  ========================= */
+  const { data, error } = await supabase
+    .from("purchases")
+    .select(`
+      id,
+      ebook:ebooks (
+        title,
+        pdf_path
+      )
+    `)
+    .eq("user_id", user.id)
+    .eq("payment_status", "paid");
 
-/* =========================
-   RENDER
-========================= */
-grid.innerHTML = (data || []).map(o => `
-  <div class="order-card">
-    <h3>${o.ebooks.title}</h3>
-    <button onclick="download('${o.ebooks.pdf_path}')">
-      Download
-    </button>
-  </div>
-`).join("");
+  if (error) {
+    console.error("❌ Orders fetch failed:", error);
+    alert("Failed to load orders");
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    grid.innerHTML = "<p>No purchases yet.</p>";
+    return;
+  }
+
+  /* =========================
+     RENDER
+  ========================= */
+  grid.innerHTML = data.map(o => `
+    <div class="order-card">
+      <h3>${o.ebook?.title ?? "Untitled"}</h3>
+      <button onclick="downloadEbook('${o.ebook?.pdf_path}')">
+        Download
+      </button>
+    </div>
+  `).join("");
+
+});
 
 /* =========================
    DOWNLOAD (SECURE)
 ========================= */
-window.download = async (path) => {
+window.downloadEbook = async (path) => {
+  if (!path) {
+    alert("File not available");
+    return;
+  }
+
   const { data, error } = await supabase
     .storage
     .from("ebooks")
-    .createSignedUrl(path, 60); // 60 seconds
+    .createSignedUrl(path, 60);
 
   if (error) {
+    console.error("❌ Signed URL error:", error);
     alert("Download failed");
     return;
   }
