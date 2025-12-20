@@ -1,0 +1,124 @@
+/* =========================
+   ABOUT PAGE
+========================= */
+
+.page-header {
+  padding: 80px 20px 40px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  font-size: 16px;
+  color: #64748b;
+}
+
+/* About Section */
+.about-section {
+  padding: 40px 20px 80px;
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Intro & Story */
+.about-intro,
+.about-story {
+  margin-bottom: 48px;
+}
+
+.about-intro h2,
+.about-story h2,
+.about-values h2 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.about-intro p,
+.about-story p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+/* Values */
+.about-values {
+  margin-bottom: 48px;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.value-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.value-card h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.value-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #475569;
+}
+
+/* CTA */
+.about-cta {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.about-cta h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.about-cta p {
+  font-size: 15px;
+  margin-bottom: 20px;
+  color: #475569;
+}
+
+.about-btn {
+  display: inline-block;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.about-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-header h1 {
+    font-size: 28px;
+  }
+}

@@ -1,0 +1,56 @@
+/* =========================
+   TERMS OF SERVICE PAGE
+========================= */
+
+.page-header {
+  padding: 80px 20px 40px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  color: #64748b;
+  font-size: 16px;
+}
+
+/* Terms Content */
+.terms-section {
+  padding: 40px 20px 80px;
+}
+
+.terms-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.terms-container h2 {
+  font-size: 18px;
+  margin-top: 32px;
+  margin-bottom: 10px;
+}
+
+.terms-container p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #475569;
+}
+
+.terms-container a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.terms-container a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .page-header h1 {
+    font-size: 28px;
+  }
+}

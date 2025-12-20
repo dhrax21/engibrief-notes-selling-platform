@@ -508,28 +508,170 @@ body {
 /* =========================
    FOOTER
 ========================= */
+/* =========================
+   FOOTER
+========================= */
 .footer {
+  background-color: #0f172a; /* slate-900 */
+  color: #cbd5f5; /* slate-300 */
+  padding: 60px 20px 20px;
+  margin-top: 80px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+/* Brand */
+.footer-brand h3 {
+  color: #ffffff;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.footer-brand p {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+/* Links */
+.footer-links h4 {
+  color: #ffffff;
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.footer-links a {
+  display: block;
+  color: #cbd5f5;
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+/* Bottom */
+.footer-bottom {
+  border-top: 1px solid #1e293b;
+  margin-top: 40px;
+  padding-top: 16px;
   text-align: center;
-  padding: 24px;
-  font-size: 0.9rem;
-  color: #64748b;
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #94a3b8;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
-@media (max-width: 640px) {
-  .support-hero h1 {
-    font-size: 1.9rem;
-  }
-
-  .support-form {
-    padding: 26px;
-  }
-
-  .nav-links a {
-    margin-left: 12px;
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 500px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    padding: 40px 16px 20px;
+  }
+}
+
+
+
+/* =========================
+   LOGOUT BUTTON
+========================= */
+#logoutBtn {
+  appearance: none;
+  border: none;
+  background-color: #ef4444; /* red-500 */
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-left: 12px;
+}
+
+/* Hover effect */
+#logoutBtn:hover {
+  background-color: #dc2626; /* red-600 */
+}
+
+/* Click feedback */
+#logoutBtn:active {
+  transform: scale(0.97);
+}
+
+/* If logout is an <a> tag */
+#logoutBtn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  #logoutBtn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+
+
+/* =========================
+   ADMIN UPLOAD BUTTON
+========================= */
+/* =========================
+   ADMIN UPLOAD BUTTON
+========================= */
+.user-name {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.admin-btn {
+  margin-right: 10px;
+}
+
+.admin-btn {
+  background: #2563eb;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.logout-btn {
+  background: #ef4444;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.user-name {
+  margin-right: 10px;
+  font-size: 18px;
+}
+

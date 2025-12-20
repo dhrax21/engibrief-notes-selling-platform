@@ -94,6 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     for (const e of ebooks) {
+
       const coverUrl = e.cover_path
         ? await getSignedCoverUrl(e.cover_path)
         : null;
@@ -137,9 +138,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 ===================================================== */
 window.buyNow = async (ebookId, price) => {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    alert("Please login to continue");
-    location.href = "login.html";
+    if (!user) {
+    alert("Please sign up or log in to purchase this ebook.");
+    window.location.href = "signup.html"; // or login.html
     return;
   }
 
