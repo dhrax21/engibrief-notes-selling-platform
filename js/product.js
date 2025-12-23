@@ -1,8 +1,5 @@
 import { supabase } from "./supabase.js";
 
-/* =====================================================
-   DOM REFERENCES
-===================================================== */
 document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("ebookGrid");
   const deptFilter = document.getElementById("departmentFilter");
@@ -12,6 +9,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let allEbooks = [];
   let purchasedSet = new Set();
+  const coverCache = new Map();
+
+  /* =========================
+     AUTH (SAFE)
+  ========================= */
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   /* =========================
      INIT
@@ -27,7 +31,6 @@ document.addEventListener("DOMContentLoaded", async () => {
      LOAD PURCHASES
   ========================= */
   async function loadPurchases() {
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data } = await supabase
@@ -57,15 +60,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* =========================
-     SIGNED COVER URL
+     SIGNED COVER (CACHED)
   ========================= */
-  async function getSignedCoverUrl(path) {
+  async function getCoverUrl(path) {
+    if (!path) return null;
+    if (coverCache.has(path)) return coverCache.get(path);
+
     const { data } = await supabase
       .storage
       .from("ebooks")
       .createSignedUrl(path, 300);
 
-    return data?.signedUrl || null;
+    coverCache.set(path, data?.signedUrl ?? null);
+    return data?.signedUrl ?? null;
   }
 
   /* =========================
@@ -74,15 +81,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function render() {
     let ebooks = [...allEbooks];
 
-    const dept = deptFilter.value;
-    if (dept !== "ALL") {
-      ebooks = ebooks.filter(e => e.department === dept);
+    if (deptFilter.value !== "ALL") {
+      ebooks = ebooks.filter(e => e.department === deptFilter.value);
     }
 
-    const sort = sortFilter.value;
-    if (sort === "low") ebooks.sort((a, b) => a.price - b.price);
-    if (sort === "high") ebooks.sort((a, b) => b.price - a.price);
-    if (sort === "newest") {
+    if (sortFilter.value === "low") ebooks.sort((a, b) => a.price - b.price);
+    if (sortFilter.value === "high") ebooks.sort((a, b) => b.price - a.price);
+    if (sortFilter.value === "newest") {
       ebooks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 
@@ -94,137 +99,119 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     for (const e of ebooks) {
-
-      const coverUrl = e.cover_path
-        ? await getSignedCoverUrl(e.cover_path)
-        : null;
+      const coverUrl = await getCoverUrl(e.cover_path);
 
       const card = document.createElement("div");
       card.className = "ebook-card";
 
       card.innerHTML = `
         ${coverUrl ? `<img src="${coverUrl}" alt="${e.title}">` : ""}
-
         <div class="ebook-info">
           <h3>${e.title}</h3>
           <p>${e.subject}</p>
-
           <div class="ebook-meta">
             <span class="ebook-price">₹${e.price}</span>
             <span class="ebook-tag">${e.department}</span>
           </div>
-
-          ${
-            purchasedSet.has(e.id)
-              ? `<button class="ebook-btn"
-                   onclick="downloadEbook('${e.pdf_path}', '${e.id}')">
-                   Download
-                 </button>`
-              : `<button class="ebook-btn"
-                   onclick="buyNow('${e.id}', ${e.price})">
-                   Buy Now
-                 </button>`
-          }
+          <button class="ebook-btn"
+            data-id="${e.id}"
+            data-price="${e.price}"
+            data-path="${e.pdf_path}">
+            ${purchasedSet.has(e.id) ? "Download" : "Buy Now"}
+          </button>
         </div>
       `;
+
+      card.querySelector("button").addEventListener("click", async (ev) => {
+        if (purchasedSet.has(e.id)) {
+          await downloadEbook(ev.target.dataset.path, e.id);
+        } else {
+          await buyNow(e.id, e.price);
+        }
+      });
 
       grid.appendChild(card);
     }
   }
-});
 
-/* =====================================================
-   BUY NOW (RAZORPAY)
-===================================================== */
-window.buyNow = async (ebookId, price) => {
-  const { data: { user } } = await supabase.auth.getUser();
+  /* =========================
+     BUY NOW
+  ========================= */
+  async function buyNow(ebookId, price) {
     if (!user) {
-    alert("Please sign up or log in to purchase this ebook.");
-    window.location.href = "signup.html"; // or login.html
-    return;
-  }
+      alert("Please log in to purchase.");
+      window.location.href = "/pages/login.html";
+      return;
+    }
 
-  const amountInPaise = price * 100;
+    const amount = price * 100;
 
-  try {
     const res = await fetch("http://127.0.0.1:7000/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ebookId, amount: amountInPaise })
+      body: JSON.stringify({ ebookId, amount })
     });
 
-    if (!res.ok) throw new Error();
+    if (!res.ok) {
+      alert("Payment failed");
+      return;
+    }
 
     const order = await res.json();
-    if (!order.id) return;
 
-    const options = {
+    new Razorpay({
       key: "rzp_test_Rt7n1yYlzd3Lig",
       order_id: order.id,
       amount: order.amount,
       currency: "INR",
-      name: "Engibrief",
-      description: "Engineering E-Book",
-
+      name: "EngiBriefs",
       handler: async (response) => {
         await fetch("http://127.0.0.1:7000/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
+            ...response,
             ebookId,
             userId: user.id,
-            amount: amountInPaise
+            amount
           })
         });
 
         alert("Payment successful");
         location.reload();
       }
-    };
-
-    new Razorpay(options).open();
-  } catch {
-    alert("Payment failed");
-  }
-};
-
-/* =====================================================
-   DOWNLOAD (SECURE)
-===================================================== */
-window.downloadEbook = async (pdfPath, ebookId) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    location.href = "login.html";
-    return;
+    }).open();
   }
 
-  const { data: allowed } = await supabase.rpc("can_download", {
-    uid: user.id,
-    ebook: ebookId
-  });
+  /* =========================
+     DOWNLOAD (SECURE)
+  ========================= */
+  async function downloadEbook(pdfPath, ebookId) {
+    if (!user) {
+      window.location.href = "/pages/login.html";
+      return;
+    }
 
-  if (!allowed) {
-    alert("Download limit reached");
-    return;
+    const { data: allowed } = await supabase.rpc("can_download", {
+      uid: user.id,
+      ebook: ebookId
+    });
+
+    if (!allowed) {
+      alert("Download limit reached");
+      return;
+    }
+
+    const { data } = await supabase
+      .storage
+      .from("ebooks")
+      .createSignedUrl(pdfPath, 60);
+
+    await supabase.from("download_logs").insert({
+      user_id: user.id,
+      ebook_id: ebookId
+    });
+
+    window.open(data.signedUrl, "_blank");
   }
-
-  const { data, error } = await supabase
-    .storage
-    .from("ebooks")
-    .createSignedUrl(pdfPath, 60);
-
-  if (error) {
-    alert("Download failed");
-    return;
-  }
-
-  await supabase.from("download_logs").insert({
-    user_id: user.id,
-    ebook_id: ebookId
-  });
-
-  window.open(data.signedUrl, "_blank");
-};
+});

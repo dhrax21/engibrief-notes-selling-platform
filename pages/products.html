@@ -5,8 +5,8 @@
   <title>E-Books – Engibrief</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="./css/product.css">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/product.css">
 </head>
 
 <body>
@@ -15,9 +15,10 @@
 <header class="navbar">
   <div class="logo">Engibrief</div>
   <nav class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="products.html" class="active">E-Books</a>
-    <a href="support.html">Support</a>
+    <a href="/index.html">Home</a>
+    <a href="/pages/products.html">E-Books</a>
+    <a href="/pages/pricing.html">Pricing</a>
+    <a href="/pages/support.html">Support</a>
     <div id="authArea"></div>
   </nav>
 </header>
@@ -32,9 +33,10 @@
 <section class="filter-bar">
   <select id="departmentFilter">
     <option value="ALL">All Branches</option>
-    <option value="CSE">CSE</option>
-    <option value="ECE">ECE</option>
-    <option value="ME">ME</option>
+    <option value="CSE">Computer Science Engineering</option>
+    <option value="CE">Civil Engineering</option>
+    <option value="ECE">Electronics and Communication</option>
+    <option value="ME">Mechanical Engineering</option>
   </select>
 
   <select id="sortFilter">
@@ -51,13 +53,14 @@
   </div>
 </main>
 
-
-
 <!-- SCRIPTS -->
-
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script type="module" src="./js/product.js"></script>
+
+<!-- 🔝 NAVBAR AUTH -->
+<script type="module" src="../js/app.js"></script>
+
+<!-- 📦 PRODUCT LOGIC -->
+<script type="module" src="../js/product.js"></script>
+
 </body>
 </html>
-
-

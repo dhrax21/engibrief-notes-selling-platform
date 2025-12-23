@@ -3,19 +3,22 @@ import { supabase } from "./supabase.js";
 const ADMIN_EMAIL = "manksingh36@gmail.com";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  // ✅ SAFE auth check
+  const { data: { session } } = await supabase.auth.getSession();
 
   // 🚫 Not logged in → login page
-  if (!user) {
-    window.location.href = "login.html";
+  if (!session) {
+    window.location.href = "/pages/login.html";
     return;
   }
+
+  const user = session.user;
 
   // 🚫 Logged in but not admin → home page
   if (user.email !== ADMIN_EMAIL) {
-    window.location.href = "index.html";
+    window.location.href = "/index.html";
     return;
   }
 
-  // 👑 Admin allowed → do nothing
+  // 👑 Admin allowed → continue
 });

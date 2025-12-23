@@ -8,16 +8,21 @@ if (!window.__adminUploadInitialized) {
     if (!form) return;
 
     /* =========================
-       AUTH & ROLE CHECK
+       AUTH CHECK (SAFE)
     ========================= */
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session) {
       alert("Please login as admin");
-      location.href = "login.html";
+      window.location.href = "/pages/login.html";
       return;
     }
 
+    const user = session.user;
+
+    /* =========================
+       ROLE CHECK
+    ========================= */
     const { data: profile, error: roleError } = await supabase
       .from("profiles")
       .select("role")
@@ -26,7 +31,7 @@ if (!window.__adminUploadInitialized) {
 
     if (roleError || profile?.role !== "admin") {
       alert("Admins only");
-      location.href = "index.html";
+      window.location.href = "/index.html";
       return;
     }
 
@@ -35,8 +40,6 @@ if (!window.__adminUploadInitialized) {
     ========================= */
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      console.log("🚀 Upload started");
 
       const title = document.getElementById("title").value.trim();
       const subject = document.getElementById("subject").value.trim();
@@ -61,13 +64,13 @@ if (!window.__adminUploadInitialized) {
 
       try {
         /* =========================
-           UPLOAD COVER IMAGE
+           UPLOAD COVER
         ========================= */
         const coverPath = `covers/${department}/${timestamp}-${coverFile.name}`;
 
         const { error: coverError } = await supabase.storage
           .from("ebooks")
-          .upload(coverPath, coverFile);
+          .upload(coverPath, coverFile, { upsert: false });
 
         if (coverError) throw coverError;
 
@@ -78,34 +81,31 @@ if (!window.__adminUploadInitialized) {
 
         const { error: pdfError } = await supabase.storage
           .from("ebooks")
-          .upload(pdfPath, pdfFile);
+          .upload(pdfPath, pdfFile, { upsert: false });
 
         if (pdfError) throw pdfError;
 
         /* =========================
-           SAVE METADATA TO DB
+           SAVE METADATA
         ========================= */
         const { error: dbError } = await supabase
           .from("ebooks")
-          .insert([
-            {
-              title,
-              subject,
-              department: department.toUpperCase(),
-              price,
-              pdf_path: pdfPath,
-              cover_path: coverPath
-            }
-          ]);
+          .insert({
+            title,
+            subject,
+            department: department.toUpperCase(),
+            price,
+            pdf_path: pdfPath,
+            cover_path: coverPath
+          });
 
         if (dbError) throw dbError;
 
-        console.log("✅ Upload complete");
         alert("Upload successful");
         form.reset();
 
       } catch (err) {
-        console.error("❌ Upload failed:", err);
+        console.error("Upload failed:", err);
         alert(err.message || "Upload failed");
       }
     });

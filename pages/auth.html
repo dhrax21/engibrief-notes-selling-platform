@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auth – Engibrief</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/auth.css" />
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <h2 id="authTitle">Login</h2>
+    <p class="auth-subtitle" id="authSubtitle">
+      Access your Engibrief account
+    </p>
+
+    <!-- ===== LOGIN / SIGNUP TOGGLE ===== -->
+    <div class="auth-toggle">
+      <button id="loginTab" class="active">Login</button>
+      <button id="signupTab">Sign Up</button>
+    </div>
+
+    <!-- ===== EMAIL AUTH ===== -->
+    <div id="emailAuth">
+
+      <!-- Full name ONLY for signup -->
+      <input
+        type="text"
+        id="name"
+        class="auth-input hidden"
+        placeholder="Full Name"
+      />
+
+      <input
+        type="email"
+        id="email"
+        class="auth-input"
+        placeholder="Email"
+      />
+
+      <input
+        type="password"
+        id="password"
+        class="auth-input"
+        placeholder="Password"
+      />
+
+      <button class="auth-btn" onclick="emailAuth()">
+        Continue
+      </button>
+
+  
+      <button class="auth-btn google" onclick="loginWithGoogle()">
+        Continue with Google
+      </button>
+
+      <p class="auth-link">
+        <a href="/pages/forgot-password.html">Forgot password?</a>
+      </p>
+
+    </div>
+
+    <!-- ===== PHONE AUTH ===== -->
+    <div id="phoneAuth" class="hidden">
+
+      <input
+        type="tel"
+        id="phone"
+        class="auth-input"
+        placeholder="+91XXXXXXXXXX"
+      />
+
+      <button class="auth-btn" onclick="sendOTP()">
+        Send OTP
+      </button>
+
+      <input
+        type="text"
+        id="otp"
+        class="auth-input"
+        placeholder="Enter OTP"
+      />
+
+      <button class="auth-btn" onclick="verifyOTP()">
+        Verify OTP
+      </button>
+
+    </div>
+
+    <!-- ===== AUTH METHOD TOGGLE ===== -->
+    <div class="auth-toggle secondary">
+      <button id="emailTab" class="active">Email</button>
+      <button id="phoneTab">Phone</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="/js/auth-unified.js"></script>
+
+</body>
+</html>
