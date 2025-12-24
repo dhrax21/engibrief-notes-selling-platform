@@ -79,6 +79,26 @@ window.loginUser = async () => {
   }
 };
 
+
+
+const googleBtn = document.getElementById("googleLoginBtn");
+
+if (googleBtn) {
+  googleBtn.addEventListener("click", async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/pages/auth-callback.html`
+      }
+    });
+
+    if (error) {
+      console.error("Google login error:", error);
+      alert("Google login failed");
+    }
+  });
+}
+
 /* =========================
    LOGOUT
 ========================= */

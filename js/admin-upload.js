@@ -1,5 +1,8 @@
 import { supabase } from "./supabase.js";
 
+/* =====================================================
+   ADMIN UPLOAD INITIALIZER
+===================================================== */
 if (!window.__adminUploadInitialized) {
   window.__adminUploadInitialized = true;
 
@@ -8,7 +11,7 @@ if (!window.__adminUploadInitialized) {
     if (!form) return;
 
     /* =========================
-       AUTH CHECK (SAFE)
+       AUTH CHECK
     ========================= */
     const { data: { session } } = await supabase.auth.getSession();
 
@@ -18,15 +21,13 @@ if (!window.__adminUploadInitialized) {
       return;
     }
 
-    const user = session.user;
-
     /* =========================
        ROLE CHECK
     ========================= */
     const { data: profile, error: roleError } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", session.user.id)
       .single();
 
     if (roleError || profile?.role !== "admin") {
@@ -50,12 +51,12 @@ if (!window.__adminUploadInitialized) {
       const pdfFile = document.getElementById("pdfFile").files[0];
 
       if (!title || !subject || !departmentRaw || !price) {
-        alert("All fields required");
+        alert("All fields are required");
         return;
       }
 
       if (!coverFile || !pdfFile) {
-        alert("Cover image and PDF required");
+        alert("Cover image and PDF are required");
         return;
       }
 
@@ -64,23 +65,23 @@ if (!window.__adminUploadInitialized) {
 
       try {
         /* =========================
-           UPLOAD COVER
+           UPLOAD COVER (PUBLIC BUCKET)
         ========================= */
         const coverPath = `covers/${department}/${timestamp}-${coverFile.name}`;
 
         const { error: coverError } = await supabase.storage
-          .from("ebooks")
+          .from("ebook-covers")          // ✅ PUBLIC BUCKET
           .upload(coverPath, coverFile, { upsert: false });
 
         if (coverError) throw coverError;
 
         /* =========================
-           UPLOAD PDF
+           UPLOAD PDF (PRIVATE BUCKET)
         ========================= */
         const pdfPath = `${department}/${timestamp}-${pdfFile.name}`;
 
         const { error: pdfError } = await supabase.storage
-          .from("ebooks")
+          .from("ebooks")                // ✅ PRIVATE BUCKET
           .upload(pdfPath, pdfFile, { upsert: false });
 
         if (pdfError) throw pdfError;
@@ -96,7 +97,8 @@ if (!window.__adminUploadInitialized) {
             department: department.toUpperCase(),
             price,
             pdf_path: pdfPath,
-            cover_path: coverPath
+            cover_path: coverPath,
+            is_active: true
           });
 
         if (dbError) throw dbError;
