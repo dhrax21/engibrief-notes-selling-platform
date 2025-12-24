@@ -1,0 +1,37 @@
+<svg
+  width="160"
+  height="160"
+  viewBox="0 0 160 160"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="Engibrief Logo"
+  role="img"
+>
+  <!-- Top roof -->
+  <path
+    d="M20 60 L80 20 L140 60 L140 75 L80 35 L20 75 Z"
+    fill="#1E88E5"
+  />
+
+  <!-- Middle house -->
+  <path
+    d="M30 80 L80 45 L130 80 L130 125 L30 125 Z"
+    fill="#4CAF50"
+  />
+
+  <!-- Inner house -->
+  <path
+    d="M55 90 L80 65 L105 90 L105 130 L55 130 Z"
+    fill="#1E3A8A"
+  />
+
+  <!-- Window -->
+  <rect x="73" y="80" width="6" height="6" fill="#FFFFFF"/>
+  <rect x="81" y="80" width="6" height="6" fill="#FFFFFF"/>
+  <rect x="73" y="88" width="6" height="6" fill="#FFFFFF"/>
+  <rect x="81" y="88" width="6" height="6" fill="#FFFFFF"/>
+
+  <!-- Blueprint roll -->
+  <ellipse cx="48" cy="115" rx="6" ry="4" fill="#90CAF9"/>
+  <rect x="42" y="115" width="12" height="20" fill="#90CAF9"/>
+  <line x1="48" y1="115" x2="48" y2="135" stroke="#FFFFFF" stroke-width="1"/>
+</svg>
