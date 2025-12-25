@@ -16,8 +16,12 @@ if (!window.__adminUploadInitialized) {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
-      alert("Please login as admin");
-      window.location.href = "/pages/login.html";
+      showToast("Please login as admin", "info", 2200);
+
+      setTimeout(() => {
+        window.location.replace("/pages/auth.html");
+      }, 2000);
+
       return;
     }
 
@@ -31,85 +35,107 @@ if (!window.__adminUploadInitialized) {
       .single();
 
     if (roleError || profile?.role !== "admin") {
-      alert("Admins only");
-      window.location.href = "/index.html";
+      showToast("Access denied. Admins only.", "error", 2200);
+
+      setTimeout(() => {
+        window.location.replace("/index.html");
+      }, 2000);
+
       return;
     }
+
 
     /* =========================
        FORM SUBMIT
     ========================= */
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const title = document.getElementById("title").value.trim();
-      const subject = document.getElementById("subject").value.trim();
-      const departmentRaw = document.getElementById("department").value.trim();
-      const price = Number(document.getElementById("price").value);
+  const submitBtn = form.querySelector("button[type='submit']");
+  submitBtn.disabled = true;
 
-      const coverFile = document.getElementById("coverFile").files[0];
-      const pdfFile = document.getElementById("pdfFile").files[0];
+  const title = document.getElementById("title").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const departmentRaw = document.getElementById("department").value.trim();
+  const price = Number(document.getElementById("price").value);
 
-      if (!title || !subject || !departmentRaw || !price) {
-        alert("All fields are required");
-        return;
-      }
+  const coverFile = document.getElementById("coverFile").files[0];
+  const pdfFile = document.getElementById("pdfFile").files[0];
 
-      if (!coverFile || !pdfFile) {
-        alert("Cover image and PDF are required");
-        return;
-      }
+  // =========================
+  // VALIDATION
+  // =========================
+  if (!title || !subject || !departmentRaw || !price) {
+    showToast("All fields are required", "error", 2500);
+    submitBtn.disabled = false;
+    return;
+  }
 
-      const department = departmentRaw.toLowerCase();
-      const timestamp = Date.now();
+  if (!coverFile || !pdfFile) {
+    showToast("Cover image and PDF are required", "error", 2500);
+    submitBtn.disabled = false;
+    return;
+  }
 
-      try {
-        /* =========================
-           UPLOAD COVER (PUBLIC BUCKET)
-        ========================= */
-        const coverPath = `covers/${department}/${timestamp}-${coverFile.name}`;
+  if (price <= 0) {
+    showToast("Price must be greater than zero", "error", 2500);
+    submitBtn.disabled = false;
+    return;
+  }
 
-        const { error: coverError } = await supabase.storage
-          .from("ebook-covers")          // ✅ PUBLIC BUCKET
-          .upload(coverPath, coverFile, { upsert: false });
+  const department = departmentRaw.toLowerCase();
+  const timestamp = Date.now();
 
-        if (coverError) throw coverError;
+  try {
+    showToast("Uploading content…", "info", 2000);
 
-        /* =========================
-           UPLOAD PDF (PRIVATE BUCKET)
-        ========================= */
-        const pdfPath = `${department}/${timestamp}-${pdfFile.name}`;
+    /* =========================
+       UPLOAD COVER (PUBLIC)
+    ========================= */
+    const coverPath = `covers/${department}/${timestamp}-${coverFile.name}`;
 
-        const { error: pdfError } = await supabase.storage
-          .from("ebooks")                // ✅ PRIVATE BUCKET
-          .upload(pdfPath, pdfFile, { upsert: false });
+    const { error: coverError } = await supabase.storage
+      .from("ebook-covers") // PUBLIC bucket
+      .upload(coverPath, coverFile, { upsert: false });
 
-        if (pdfError) throw pdfError;
+    if (coverError) throw coverError;
 
-        /* =========================
-           SAVE METADATA
-        ========================= */
-        const { error: dbError } = await supabase
-          .from("ebooks")
-          .insert({
-            title,
-            subject,
-            department: department.toUpperCase(),
-            price,
-            pdf_path: pdfPath,
-            cover_path: coverPath,
-            is_active: true
-          });
+    /* =========================
+       UPLOAD PDF (PRIVATE)
+    ========================= */
+    const pdfPath = `${department}/${timestamp}-${pdfFile.name}`;
 
-        if (dbError) throw dbError;
+    const { error: pdfError } = await supabase.storage
+      .from("ebooks") // PRIVATE bucket
+      .upload(pdfPath, pdfFile, { upsert: false });
 
-        alert("Upload successful");
-        form.reset();
+    if (pdfError) throw pdfError;
 
-      } catch (err) {
-        console.error("Upload failed:", err);
-        alert(err.message || "Upload failed");
-      }
-    });
-  });
-}
+    /* =========================
+       SAVE METADATA
+    ========================= */
+    const { error: dbError } = await supabase
+      .from("ebooks")
+      .insert({
+        title,
+        subject,
+        department: department.toUpperCase(),
+        price,
+        pdf_path: pdfPath,
+        cover_path: coverPath,
+        is_active: true
+      });
+
+    if (dbError) throw dbError;
+
+    showToast("Upload successful", "success", 2000);
+    form.reset();
+
+  } catch (err) {
+    console.error("Upload failed:", err);
+    showToast(err.message || "Upload failed", "error", 3000);
+  } finally {
+    submitBtn.disabled = false;
+  }
+   });
+  })};

@@ -116,8 +116,12 @@ async function render() {
 
     card.querySelector(".ebook-btn").onclick = async () => {
       if (!user) {
-        alert("Please login first");
-        location.href = "/pages/login.html";
+        showToast("Please login to continue", "info", 2000);
+
+        setTimeout(() => {
+          window.location.href = "/pages/auth.html";
+        }, 1800);
+
         return;
       }
 
@@ -134,6 +138,14 @@ async function render() {
    BUY NOW
 ========================= */
 window.buyNow = async function (ebookId, price, pdfPath) {
+  if (!user) {
+    showToast("Please login to continue", "info", 2000);
+    setTimeout(() => {
+      window.location.href = "/pages/auth.html";
+    }, 1800);
+    return;
+  }
+
   try {
     const res = await fetch("/.netlify/functions/create-order", {
       method: "POST",
@@ -141,73 +153,134 @@ window.buyNow = async function (ebookId, price, pdfPath) {
       body: JSON.stringify({ amount: price }),
     });
 
-    if (!res.ok) throw new Error("Order failed");
+    if (!res.ok) {
+      throw new Error("Order creation failed");
+    }
 
     const order = await res.json();
 
     const options = {
       key: "rzp_test_Rt7n1yYlzd3Lig",
-      order_id: order.id, // ✅ DO NOT PASS AMOUNT
+      order_id: order.id, 
       currency: "INR",
       name: "EngiBriefs",
+      description: "E-Book Purchase",
+
       handler: async function (response) {
-        const verifyRes = await fetch(
-          "/.netlify/functions/verify-payment",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              ebookId,
-            }),
+        try {
+          const verifyRes = await fetch(
+            "/.netlify/functions/verify-payment",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                ebookId,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            throw new Error("Payment verification failed");
           }
-        );
 
-        const result = await verifyRes.json();
+          const result = await verifyRes.json();
 
-        if (result.success) {
+          if (!result.success) {
+            showToast("Payment verification failed", "error", 2500);
+            return;
+          }
+          purchasedSet = purchasedSet || new Set();
           purchasedSet.add(ebookId);
+
+          showToast("Payment successful", "success", 1800);
+
           await render();
-          await downloadEbook(pdfPath, ebookId);
-          alert("Payment successful");
-        } else {
-          alert("Verification failed");
+
+          setTimeout(() => {
+            downloadEbook(pdfPath, ebookId);
+          }, 800);
+
+        } catch (err) {
+          console.error("Verification error:", err);
+          showToast("Payment verification error", "error", 2500);
         }
       },
-    };
 
+      modal: {
+        ondismiss: function () {
+          showToast("Payment cancelled", "info", 2000);
+        },
+      },
+    };
     new Razorpay(options).open();
+
   } catch (err) {
-    console.error(err);
-    alert("Payment failed");
+    console.error("Buy now error:", err);
+    showToast("Payment failed. Please try again.", "error", 2500);
   }
 };
+
 
 /* =========================
    DOWNLOAD (SECURE)
 ========================= */
 async function downloadEbook(pdfPath, ebookId) {
-  if (!user || !purchasedSet.has(ebookId)) {
-    alert("Unauthorized");
+  // 🔐 Auth check
+  if (!user) {
+    showToast("Please login to download this e-book", "info", 2000);
+
+    setTimeout(() => {
+      window.location.href = "/pages/auth.html";
+    }, 1800);
+
     return;
   }
 
-  const { data, error } = await supabase.storage
-    .from("ebooks") // PRIVATE bucket
-    .createSignedUrl(pdfPath, 60);
-
-  if (error) {
-    console.error(error);
-    alert("Download failed");
+  // 🔒 Purchase check
+  if (!purchasedSet || !purchasedSet.has(ebookId)) {
+    showToast("You have not purchased this e-book", "error", 2500);
     return;
   }
 
-  const link = document.createElement("a");
-  link.href = data.signedUrl;
-  link.download = "";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  try {
+    const { data, error } = await supabase.storage
+      .from("ebooks") // PRIVATE bucket
+      .createSignedUrl(pdfPath, 60); // 60 seconds
+
+    if (error) throw error;
+
+    // ⬇️ Trigger secure download
+    const link = document.createElement("a");
+    link.href = data.signedUrl;
+    link.download = "";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast("Download started", "success", 1500);
+
+  } catch (err) {
+    console.error("Download error:", err);
+    showToast("Download failed. Please try again.", "error", 2500);
+  }
+}
+
+
+
+
+
+
+function showToast(message, type = "info", duration = 3000) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+
+  setTimeout(() => {
+    toast.className = "toast hidden";
+  }, duration);
 }
