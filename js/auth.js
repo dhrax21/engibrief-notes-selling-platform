@@ -18,9 +18,7 @@ window.signupUser = async () => {
       email,
       password,
       options: {
-        data: {
-          name // stored temporarily in user metadata
-        },
+        data: { name },
         emailRedirectTo: `${window.location.origin}/pages/login.html`
       }
     });
@@ -30,7 +28,6 @@ window.signupUser = async () => {
       return;
     }
 
-    // 🔐 Email confirmation ON
     if (!data.session) {
       showToast(
         "Account created. Please verify your email before login.",
@@ -40,16 +37,14 @@ window.signupUser = async () => {
       return;
     }
 
-    // 🔐 Email confirmation OFF
-    showToast("Account created successfully!", "success");  
+    showToast("Account created successfully!", "success");
     window.location.href = "/index.html";
 
   } catch (err) {
-    console.error("Signup failed:", err);
-    showToast("Signup failed. Please try again.", "error");
+    console.error(err);
+    showToast("Signup failed. Try again.", "error");
   }
 };
-
 
 /* =========================
    LOGIN
@@ -59,7 +54,7 @@ window.loginUser = async () => {
   const password = document.getElementById("loginPassword")?.value.trim();
 
   if (!email || !password) {
-    alert("Email & password required");
+    showToast("Email & password required", "error");
     return;
   }
 
@@ -69,35 +64,37 @@ window.loginUser = async () => {
   });
 
   if (error) {
-    alert(error.message);
+    showToast(error.message, "error");
     return;
   }
 
-  // ✅ Supabase v2 safe check
   if (data?.session) {
     window.location.href = "/index.html";
   }
 };
 
+/* =========================
+   GOOGLE LOGIN
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
 
+  if (googleBtn) {
+    googleBtn.addEventListener("click", async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/pages/auth-callback.html`
+        }
+      });
 
-const googleBtn = document.getElementById("googleLoginBtn");
-
-if (googleBtn) {
-  googleBtn.addEventListener("click", async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/pages/auth-callback.html`
+      if (error) {
+        console.error(error);
+        showToast("Google login failed", "error");
       }
     });
-
-    if (error) {
-      console.error("Google login error:", error);
-      alert("Google login failed");
-    }
-  });
-}
+  }
+});
 
 /* =========================
    LOGOUT
@@ -107,12 +104,35 @@ window.logoutUser = async () => {
   window.location.href = "/pages/login.html";
 };
 
-console.log("Supabase auth module loaded");
+/* =========================
+   NAVBAR AUTH STATE
+========================= */
+document.addEventListener("DOMContentLoaded", async () => {
+  const authArea = document.getElementById("authArea");
+  if (!authArea) return;
 
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    authArea.innerHTML = `
+      <span class="nav-user">Hi, ${user.email}</span>
+      <button class="nav-btn" onclick="logoutUser()">Logout</button>
+    `;
+  } else {
+    authArea.innerHTML = `
+      <a href="/pages/login.html" class="nav-btn">Login</a>
+      <a href="/pages/signup.html" class="nav-btn primary">Sign Up</a>
+    `;
+  }
+});
+
+/* =========================
+   TOAST
+========================= */
 function showToast(message, type = "info", duration = 3000) {
   const toast = document.getElementById("toast");
   if (!toast) {
-    alert(message); // fallback
+    alert(message);
     return;
   }
 
@@ -124,3 +144,4 @@ function showToast(message, type = "info", duration = 3000) {
   }, duration);
 }
 
+console.log("✅ Supabase auth loaded");

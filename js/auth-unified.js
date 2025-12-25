@@ -1,14 +1,153 @@
 import { supabase } from "./supabase.js";
 
-/* =========================
-   GLOBAL STATE
-========================= */
-let mode = "login"; // login | signup
-let phoneNumber = "";
+/* =====================================================
+   STATE
+===================================================== */
+let mode = "login";      // login | signup
+let authMethod = "email"; // email | phone
 
-/* =========================
+/* =====================================================
+   DOM ELEMENTS
+===================================================== */
+const loginTab = document.getElementById("loginTab");
+const signupTab = document.getElementById("signupTab");
+
+const emailTab = document.getElementById("emailTab");
+const phoneTab = document.getElementById("phoneTab");
+
+const nameInput = document.getElementById("name");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+const emailAuthBox = document.getElementById("emailAuth");
+const phoneAuthBox = document.getElementById("phoneAuth");
+
+const authTitle = document.getElementById("authTitle");
+const authSubtitle = document.getElementById("authSubtitle");
+
+/* =====================================================
+   TAB TOGGLING
+===================================================== */
+loginTab.addEventListener("click", () => switchMode("login"));
+signupTab.addEventListener("click", () => switchMode("signup"));
+
+emailTab.addEventListener("click", () => switchMethod("email"));
+phoneTab.addEventListener("click", () => switchMethod("phone"));
+
+function switchMode(newMode) {
+  mode = newMode;
+
+  loginTab.classList.toggle("active", mode === "login");
+  signupTab.classList.toggle("active", mode === "signup");
+
+  nameInput.classList.toggle("hidden", mode === "login");
+
+  authTitle.textContent = mode === "login" ? "Login" : "Create Account";
+  authSubtitle.textContent =
+    mode === "login"
+      ? "Access your Engibrief account"
+      : "Create your Engibrief account";
+}
+
+function switchMethod(method) {
+  authMethod = method;
+
+  emailTab.classList.toggle("active", method === "email");
+  phoneTab.classList.toggle("active", method === "phone");
+
+  emailAuthBox.classList.toggle("hidden", method !== "email");
+  phoneAuthBox.classList.toggle("hidden", method !== "phone");
+}
+
+/* =====================================================
+   EMAIL AUTH (LOGIN + SIGNUP)
+===================================================== */
+window.emailAuth = async function () {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const name = nameInput.value.trim();
+
+  if (!email || !password) {
+    showToast("Email and password required", "error");
+    return;
+  }
+
+  try {
+    if (mode === "signup") {
+      if (!name) {
+        showToast("Full name required", "error");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+          emailRedirectTo: `${window.location.origin}/pages/auth-callback.html`
+        }
+      });
+
+      if (error) throw error;
+
+      showToast(
+        "Account created. Please verify your email before login.",
+        "success"
+      );
+
+      switchMode("login");
+      return;
+    }
+
+    // LOGIN
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    if (data?.session) {
+      window.location.href = "/index.html";
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || "Authentication failed", "error");
+  }
+};
+
+/* =====================================================
+   GOOGLE AUTH
+===================================================== */
+window.loginWithGoogle = async function () {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/pages/auth-callback.html`
+    }
+  });
+
+  if (error) {
+    console.error(error);
+    showToast("Google login failed", "error");
+  }
+};
+
+/* =====================================================
+   PHONE AUTH (OPTIONAL / SAFE STUB)
+===================================================== */
+window.sendOTP = function () {
+  showToast("Phone auth not enabled yet", "info");
+};
+
+window.verifyOTP = function () {
+  showToast("Phone auth not enabled yet", "info");
+};
+
+/* =====================================================
    TOAST
-========================= */
+===================================================== */
 function showToast(message, type = "info", duration = 3000) {
   const toast = document.getElementById("toast");
   if (!toast) {
@@ -24,192 +163,4 @@ function showToast(message, type = "info", duration = 3000) {
   }, duration);
 }
 
-/* =========================
-   DOM READY
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-
-  // ===== SAFE QUERY HELPER =====
-  const $ = (id) => document.getElementById(id);
-
-  const loginTab = $("loginTab");
-  const signupTab = $("signupTab");
-  const emailTab = $("emailTab");
-  const phoneTab = $("phoneTab");
-  const emailAuth = $("emailAuth");
-  const phoneAuth = $("phoneAuth");
-  const nameInput = $("name");
-  const authTitle = $("authTitle");
-  const authSubtitle = $("authSubtitle");
-
-  // ===== FORCE LOGIN MODE ON LOAD =====
-  if (loginTab) loginTab.classList.add("active");
-  if (signupTab) signupTab.classList.remove("active");
-  if (nameInput) nameInput.classList.add("hidden");
-
-  if (authTitle) authTitle.textContent = "Login";
-  if (authSubtitle)
-    authSubtitle.textContent = "Access your Engibrief account";
-
-  // ===== LOGIN / SIGNUP TOGGLE =====
-  if (loginTab && signupTab) {
-    loginTab.onclick = () => {
-      mode = "login";
-      loginTab.classList.add("active");
-      signupTab.classList.remove("active");
-      if (nameInput) nameInput.classList.add("hidden");
-      if (authTitle) authTitle.textContent = "Login";
-      if (authSubtitle)
-        authSubtitle.textContent = "Access your Engibrief account";
-    };
-
-    signupTab.onclick = () => {
-      mode = "signup";
-      signupTab.classList.add("active");
-      loginTab.classList.remove("active");
-      if (nameInput) nameInput.classList.remove("hidden");
-      if (authTitle) authTitle.textContent = "Create Account";
-      if (authSubtitle)
-        authSubtitle.textContent = "Start accessing premium notes";
-    };
-  }
-
-  // ===== EMAIL / PHONE TOGGLE =====
-  if (emailTab && phoneTab && emailAuth && phoneAuth) {
-    emailTab.onclick = () => {
-      emailTab.classList.add("active");
-      phoneTab.classList.remove("active");
-      emailAuth.classList.remove("hidden");
-      phoneAuth.classList.add("hidden");
-    };
-
-    phoneTab.onclick = () => {
-      phoneTab.classList.add("active");
-      emailTab.classList.remove("active");
-      phoneAuth.classList.remove("hidden");
-      emailAuth.classList.add("hidden");
-    };
-  }
-});
-
-
-/* =========================
-   EMAIL LOGIN / SIGNUP
-========================= */
-window.emailAuth = async () => {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    showToast("Email and password required", "error");
-    return;
-  }
-
-  /* ===== LOGIN ===== */
-if (mode === "login") {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    console.error("Login failed:", error.message);
-
-    // 🔔 FORCE USER-VISIBLE ERROR
-    showToast("Incorrect email or password", "error", 4000);
-    return;
-  }
-
-  // ✅ Login success
-  window.location.href = "/index.html";
-  return;
-}
-
-
-  /* ===== SIGNUP ===== */
-  if (!name) {
-    showToast("Full name required for signup", "error");
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name },
-      emailRedirectTo: `${window.location.origin}/pages/auth.html`
-    }
-  });
-
-  if (error) {
-    showToast(error.message, "error");
-    return;
-  }
-
-  if (!data.session) {
-    showToast("Verify your email before login", "success");
-    return;
-  }
-
-  window.location.href = "/index.html";
-};
-
-/* =========================
-   GOOGLE AUTH
-========================= */
-window.loginWithGoogle = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/index.html`
-    }
-  });
-
-  if (error) showToast(error.message, "error");
-};
-
-/* =========================
-   PHONE OTP AUTH
-========================= */
-window.sendOTP = async () => {
-  phoneNumber = document.getElementById("phone").value.trim();
-
-  if (!phoneNumber) {
-    showToast("Enter phone number", "error");
-    return;
-  }
-
-  const { error } = await supabase.auth.signInWithOtp({
-    phone: phoneNumber
-  });
-
-  if (error) {
-    showToast(error.message, "error");
-    return;
-  }
-
-  showToast("OTP sent", "success");
-};
-
-window.verifyOTP = async () => {
-  const otp = document.getElementById("otp").value.trim();
-
-  if (!otp) {
-    showToast("Enter OTP", "error");
-    return;
-  }
-
-  const { error } = await supabase.auth.verifyOtp({
-    phone: phoneNumber,
-    token: otp,
-    type: "sms"
-  });
-
-  if (error) {
-    showToast(error.message, "error");
-    return;
-  }
-
-  window.location.href = "/index.html";
-};
+console.log("✅ auth-unified loaded");
