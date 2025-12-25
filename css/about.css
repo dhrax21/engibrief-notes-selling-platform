@@ -50,6 +50,7 @@
 
 /* Values */
 .about-values {
+  background: transparent;
   margin-bottom: 48px;
 }
 
@@ -60,7 +61,7 @@
 }
 
 .value-card {
-  background: #ffffff;
+  background: transparent;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 20px;
@@ -79,7 +80,7 @@
 
 /* CTA */
 .about-cta {
-  background: #f8fafc;
+  background: transparent;
   border-radius: 12px;
   padding: 40px 20px;
   text-align: center;

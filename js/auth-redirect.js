@@ -1,9 +1,26 @@
 import { supabase } from "/js/supabase.js";
 
-let redirected = false;
+/* =========================
+   🔒 AUTH PAGE HARD GUARD
+========================= */
+
+// 1️⃣ Immediate session check (runs before UI)
+const { data: sessionData } = await supabase.auth.getSession();
+
+if (sessionData?.session?.user) {
+  window.location.replace("/index.html");
+  throw new Error("Auth page blocked: user already logged in");
+}
+
+// 2️⃣ Listen for auth state changes (OAuth, refresh, back button)
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session?.user) {
+    window.location.replace("/index.html");
+  }
+});
 
 /* =========================
-   TOAST (SAFE)
+   OPTIONAL TOAST (UX ONLY)
 ========================= */
 function showToast(message, type = "info", duration = 1500) {
   const toast = document.getElementById("toast");
@@ -16,23 +33,3 @@ function showToast(message, type = "info", duration = 1500) {
     toast.className = "toast hidden";
   }, duration);
 }
-
-/* =========================
-   AUTH PAGE GUARD
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-  if (redirected) return;
-
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session;
-
-  if (session) {
-    redirected = true;
-
-    showToast("You are already logged in", "info");
-
-    setTimeout(() => {
-      window.location.replace("/index.html"); // ✅ safer than href
-    }, 1200);
-  }
-});

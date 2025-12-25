@@ -1,10 +1,28 @@
 import { supabase } from "/js/supabase.js";
 
+/* =====================================================
+   🔒 AUTH PAGE GUARD (CRITICAL)
+===================================================== */
+
+// 1️⃣ Immediate session check (blocks refresh, direct access)
+const { data: sessionData } = await supabase.auth.getSession();
+
+if (sessionData?.session?.user) {
+  window.location.replace("/index.html");
+  throw new Error("Auth page blocked: user already logged in");
+}
+
+// 2️⃣ Listen to auth state changes (Google OAuth, back button)
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    window.location.replace("/index.html");
+  }
+});
 
 /* =====================================================
    STATE
 ===================================================== */
-let mode = "login";      // login | signup
+let mode = "login";        // login | signup
 let authMethod = "email"; // email | phone
 
 /* =====================================================
@@ -80,7 +98,7 @@ window.emailAuth = async function () {
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -109,7 +127,7 @@ window.emailAuth = async function () {
     if (error) throw error;
 
     if (data?.session) {
-      window.location.href = "/index.html";
+      window.location.replace("/index.html");
     }
 
   } catch (err) {
@@ -136,15 +154,10 @@ window.loginWithGoogle = async function () {
 };
 
 /* =====================================================
-   PHONE AUTH (OPTIONAL / SAFE STUB)
+   PHONE AUTH (STUB)
 ===================================================== */
-window.sendOTP = function () {
-  showToast("Phone auth not enabled yet", "info");
-};
-
-window.verifyOTP = function () {
-  showToast("Phone auth not enabled yet", "info");
-};
+window.sendOTP = () => showToast("Phone auth not enabled yet", "info");
+window.verifyOTP = () => showToast("Phone auth not enabled yet", "info");
 
 /* =====================================================
    TOAST
@@ -164,4 +177,4 @@ function showToast(message, type = "info", duration = 3000) {
   }, duration);
 }
 
-console.log("✅ auth-unified loaded");
+console.log("✅ auth-unified loaded (guard active)");

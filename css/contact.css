@@ -56,7 +56,7 @@
 
 /* Contact Form */
 .contact-form {
-  background: #ffffff;
+  background: transparent;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 24px;

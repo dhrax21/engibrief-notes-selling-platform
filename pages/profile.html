@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/auth.css">
   <link rel="icon" href="/assets/google-icon.png" />
 </head>
 
@@ -16,10 +16,14 @@
      NAVBAR
 ========================= -->
 <header class="navbar">
-  <div class="logo">Engibrief</div>
+  <a href="/index.html" class="brand">
+    <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
+    <span class="brand-text">Engibrief</span>
+  </a>
   <nav class="nav-links">
     <a href="/index.html">Home</a>
     <a href="/pages/products.html">E-Books</a>
+    <a href="/pages/support.html">Support</a>
     <div id="authArea"></div>
   </nav>
 </header>
@@ -160,7 +164,6 @@
 
 <!-- 🔝 NAVBAR AUTH RENDERER -->
 <script type="module" src="/js/app.js"></script>
-<script type="module" src="/js/auth-redirect.js"></script>
 <script type="module" src="/js/profile-guard.js"></script>
 
 
