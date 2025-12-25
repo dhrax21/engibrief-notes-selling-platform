@@ -113,6 +113,14 @@ async function render() {
       </button>
       ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
     `;
+      if (isAdmin) {
+        const deleteBtn = card.querySelector(".delete-btn");
+
+         deleteBtn.addEventListener("click", async () => {
+         await deleteEbook(ebook.id);
+        });
+      }
+
 
     card.querySelector(".ebook-btn").onclick = async () => {
       if (!user) {
@@ -268,8 +276,25 @@ async function downloadEbook(pdfPath, ebookId) {
   }
 }
 
+async function deleteEbook(ebookId) {
+  try {
+    showToast("Deleting e-book…", "info", 1500);
 
+    const { error } = await supabase
+      .from("ebooks")
+      .update({ is_active: false }) // soft delete
+      .eq("id", ebookId);
 
+    if (error) throw error;
+
+    showToast("E-book deleted", "success", 2000);
+    await render();
+
+  } catch (err) {
+    console.error(err);
+    showToast("Delete failed", "error", 2500);
+  }
+}
 
 
 
