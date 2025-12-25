@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = data?.session?.user;
 
   if (!user) {
-    window.location.replace("/pages/auth.html");
+         window.location.replace("/pages/auth.html");
     return;
   }
 });

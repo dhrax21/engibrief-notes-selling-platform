@@ -92,58 +92,69 @@ async function render() {
   let ebooks = [...allEbooks];
 
   if (deptFilter?.value !== "ALL") {
-    ebooks = ebooks.filter(e => e.department === deptFilter.value);
+    ebooks = ebooks.filter(b => b.department === deptFilter.value);
   }
 
   grid.innerHTML = "";
 
-  for (const e of ebooks) {
-    const cover = getCoverUrl(e.cover_path);
+  for (const ebook of ebooks) {
+    const cover = getCoverUrl(ebook.cover_path);
 
     const card = document.createElement("div");
     card.className = "ebook-card";
 
+
+    card.dataset.id = ebook.id;
+
     card.innerHTML = `
       ${cover ? `<img src="${cover}" />` : ""}
-      <h3>${e.title}</h3>
-      <p>${e.subject}</p>
-      <span>₹${e.price}</span>
+      <h3>${ebook.title}</h3>
+      <p>${ebook.subject}</p>
+      <span>₹${ebook.price}</span>
+
       <button class="ebook-btn">
-        ${purchasedSet.has(e.id) ? "Download" : "Buy Now"}
+        ${purchasedSet.has(ebook.id) ? "Download" : "Buy Now"}
       </button>
+
       ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
     `;
-    
-      if (isAdmin) {
-        const deleteBtn = card.querySelector(".delete-btn");
 
-        deleteBtn.addEventListener("click", async (e) => {
-          const ebookId = e.currentTarget.dataset.id;
-          await deleteEbook(ebookId);
-        });
-      }
+    // =========================
+    // DELETE HANDLER (ADMIN)
+    // =========================
+  const deleteBtn = card.querySelector(".delete-btn");
 
+  deleteBtn.addEventListener("click", async (evt) => {
+    const ebookId = evt.currentTarget
+      .closest(".ebook-card")
+      ?.dataset.id;
 
+    if (!ebookId) {
+      showToast("Invalid e-book ID", "error", 2500);
+      return;
+    }
 
-    card.querySelector(".ebook-btn").onclick = async () => {
-      if (!user) {
-        showToast("Please login to continue", "info", 2000);
+    await deleteEbook(ebookId);
+  });
 
-        setTimeout(() => {
-          window.location.href = "/pages/auth.html";
-        }, 1800);
+  grid.appendChild(card);
 
-        return;
-      }
-
-      purchasedSet.has(e.id)
-        ? downloadEbook(e.pdf_path, e.id)
-        : buyNow(e.id, e.price, e.pdf_path);
-    };
+    // =========================
+    // BUY / DOWNLOAD HANDLER
+    // =========================
+    card.querySelector(".ebook-btn")
+      .addEventListener("click", async () => {
+        if (purchasedSet.has(ebook.id)) {
+          await downloadEbook(ebook.pdf_path, ebook.id);
+        } else {
+          await buyNow(ebook.id, ebook.price, ebook.pdf_path);
+        }
+      });
 
     grid.appendChild(card);
   }
 }
+
 
 /* =========================
    BUY NOW
@@ -281,16 +292,17 @@ async function downloadEbook(pdfPath, ebookId) {
 
 async function deleteEbook(ebookId) {
   try {
-    showToast("Deleting e-book…", "info", 1500);
-
     const { error } = await supabase
       .from("ebooks")
-      .update({ is_active: false }) // soft delete
+      .update({ is_active: false })
       .eq("id", ebookId);
 
     if (error) throw error;
 
+    allEbooks = allEbooks.filter(e => e.id !== ebookId);
+
     showToast("E-book deleted", "success", 2000);
+
     await render();
 
   } catch (err) {
@@ -298,6 +310,9 @@ async function deleteEbook(ebookId) {
     showToast("Delete failed", "error", 2500);
   }
 }
+
+
+
 
 
 
