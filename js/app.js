@@ -7,7 +7,7 @@ const ROUTES = {
   home: "/index.html",
   auth: "/pages/auth.html",
   profile: "/pages/profile.html",
-  admin: "/pages/admin.html"
+  admin: "/pages/admin-upload.html"
 };
 
 async function renderNavbar() {
