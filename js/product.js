@@ -89,6 +89,8 @@ async function render() {
   const grid = document.getElementById("ebookGrid");
   const deptFilter = document.getElementById("departmentFilter");
 
+  if (!grid) return;
+
   let ebooks = [...allEbooks];
 
   if (deptFilter?.value !== "ALL") {
@@ -102,8 +104,6 @@ async function render() {
 
     const card = document.createElement("div");
     card.className = "ebook-card";
-
-
     card.dataset.id = ebook.id;
 
     card.innerHTML = `
@@ -119,41 +119,31 @@ async function render() {
       ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
     `;
 
-    // =========================
-    // DELETE HANDLER (ADMIN)
-    // =========================
-  const deleteBtn = card.querySelector(".delete-btn");
-
-  deleteBtn.addEventListener("click", async (evt) => {
-    const ebookId = evt.currentTarget
-      .closest(".ebook-card")
-      ?.dataset.id;
-
-    if (!ebookId) {
-      showToast("Invalid e-book ID", "error", 2500);
-      return;
+    // DELETE (admin only)
+    const deleteBtn = card.querySelector(".delete-btn");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async (evt) => {
+        const ebookId = evt.currentTarget
+          .closest(".ebook-card")
+          ?.dataset.id;
+        if (!ebookId) return;
+        await deleteEbook(ebookId);
+      });
     }
 
-    await deleteEbook(ebookId);
-  });
-
-  grid.appendChild(card);
-
-    // =========================
-    // BUY / DOWNLOAD HANDLER
-    // =========================
-    card.querySelector(".ebook-btn")
-      .addEventListener("click", async () => {
-        if (purchasedSet.has(ebook.id)) {
-          await downloadEbook(ebook.pdf_path, ebook.id);
-        } else {
-          await buyNow(ebook.id, ebook.price, ebook.pdf_path);
-        }
-      });
+    // BUY / DOWNLOAD
+    card.querySelector(".ebook-btn").addEventListener("click", async () => {
+      if (purchasedSet.has(ebook.id)) {
+        await downloadEbook(ebook.pdf_path, ebook.id);
+      } else {
+        await buyNow(ebook.id, ebook.price, ebook.pdf_path);
+      }
+    });
 
     grid.appendChild(card);
   }
 }
+
 
 
 /* =========================
