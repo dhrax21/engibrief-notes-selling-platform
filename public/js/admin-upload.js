@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "/js/supabase.js";
 
 /* =====================================================
    ADMIN UPLOAD INITIALIZER

@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "/js/supabase.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("ebookGrid");

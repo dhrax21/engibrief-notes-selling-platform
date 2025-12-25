@@ -1,5 +1,4 @@
 firebase-config.js
 serviceAccountKey.json
-supabase.js
 server.js
 .env

@@ -1,4 +1,5 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "/js/supabase.js";
+
 
 window.forgotPassword = async () => {
   const email = document.getElementById("forgotEmail")?.value.trim();

@@ -1,4 +1,5 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "/js/supabase.js";
+
 
 const ADMIN_EMAIL = "manksingh36@gmail.com";
 

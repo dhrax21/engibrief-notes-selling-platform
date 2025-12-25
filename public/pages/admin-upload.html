@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Upload | EngiBriefs</title>
 
-  <link rel="icon" href="../assets/google-icon.png" />
-  <link rel="stylesheet" href="../css/admin.css" />
+  <!-- Favicon -->
+  <link rel="icon" href="/assets/google-icon.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/admin.css" />
 </head>
 
 <body>
@@ -15,7 +18,7 @@
      ADMIN ROUTE GUARD
 ========================= -->
 <script type="module">
-  import { supabase } from "../js/supabase.js";
+  import { supabase } from "/js/supabase.js";
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -36,7 +39,6 @@
     }
   }
 </script>
-
 
 <!-- =========================
      ADMIN UI
@@ -91,7 +93,7 @@
 <!-- =========================
      SCRIPTS
 ========================= -->
-<script type="module" src="../js/admin-upload.js"></script>
+<script type="module" src="/js/admin-upload.js"></script>
 
 </body>
 </html>

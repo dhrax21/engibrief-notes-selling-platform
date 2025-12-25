@@ -5,13 +5,14 @@
   <title>E-Books – Engibrief</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="../css/styles.css">
-  <link rel="stylesheet" href="../css/product.css">
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/product.css">
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+<!-- ================= NAVBAR ================= -->
 <header class="navbar">
   <div class="logo">Engibrief</div>
   <nav class="nav-links">
@@ -23,13 +24,13 @@
   </nav>
 </header>
 
-<!-- PAGE HEADER -->
+<!-- ================= PAGE HEADER ================= -->
 <section class="page-hero">
   <h1>Engineering E-Books</h1>
   <p>Exam-focused notes written to save time and boost understanding.</p>
 </section>
 
-<!-- FILTER BAR -->
+<!-- ================= FILTER BAR ================= -->
 <section class="filter-bar">
   <select id="departmentFilter">
     <option value="ALL">All Branches</option>
@@ -46,21 +47,23 @@
   </select>
 </section>
 
-<!-- EBOOK GRID -->
+<!-- ================= EBOOK GRID ================= -->
 <main class="ebook-container">
   <div class="ebook-grid" id="ebookGrid">
     <!-- Rendered dynamically -->
   </div>
 </main>
 
-<!-- SCRIPTS -->
+<!-- ================= SCRIPTS ================= -->
+
+<!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<!-- 🔝 NAVBAR AUTH -->
-<script type="module" src="../js/app.js"></script>
+<!-- Navbar auth -->
+<script type="module" src="/js/app.js"></script>
 
-<!-- 📦 PRODUCT LOGIC -->
-<script type="module" src="../js/product.js"></script>
+<!-- Product logic -->
+<script type="module" src="/js/product.js"></script>
 
 </body>
 </html>

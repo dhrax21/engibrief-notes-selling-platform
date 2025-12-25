@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <title>My Orders | Engibrief</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../css/styles.css" />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 
 <body>
 
+<!-- ================= NAVBAR ================= -->
 <header class="navbar">
   <div class="logo">Engibrief</div>
   <nav class="nav-links">
@@ -20,14 +23,15 @@
   </nav>
 </header>
 
+<!-- ================= ORDERS ================= -->
 <main class="orders-container">
   <h1>My Orders</h1>
   <div id="ordersGrid" class="orders-grid"></div>
 </main>
 
-<!-- 🔐 AUTH GUARD -->
+<!-- ================= AUTH GUARD ================= -->
 <script type="module">
-  import { supabase } from "../js/supabase.js";
+  import { supabase } from "/js/supabase.js";
 
   const { data: { session } } = await supabase.auth.getSession();
 
@@ -36,11 +40,11 @@
   }
 </script>
 
-<!-- 🔝 NAVBAR AUTH -->
-<script type="module" src="../js/app.js"></script>
+<!-- ================= NAVBAR AUTH ================= -->
+<script type="module" src="/js/app.js"></script>
 
-<!-- 📦 ORDERS LOGIC -->
-<script type="module" src="../js/orders.js"></script>
+<!-- ================= ORDERS LOGIC ================= -->
+<script type="module" src="/js/orders.js"></script>
 
 </body>
 </html>
