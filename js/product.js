@@ -121,11 +121,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       `;
 
-      card.querySelector(".ebook-btn").onclick = async () => {
-        purchasedSet.has(e.id)
-          ? downloadEbook(e.pdf_path, e.id)
-          : buyNow(e.id, e.price);
-      };
+        card.querySelector(".ebook-btn").onclick = () => {
+      purchasedSet.has(e.id)
+        ? downloadEbook(e.pdf_path, e.id)
+        : buyNow(e.id, e.price, e.pdf_path);
+    };
 
       const del = card.querySelector(".delete-btn");
       if (del) {
@@ -214,3 +214,19 @@ window.buyNow = async function (ebookId, price, pdfPath) {
     alert("Payment failed");
   }
 };
+
+
+
+function downloadEbook(pdfPath, ebookId) {
+  if (!pdfPath) {
+    alert("Download link not available");
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = pdfPath;
+  link.download = ""; // forces download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
