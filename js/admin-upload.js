@@ -139,3 +139,16 @@ if (!window.__adminUploadInitialized) {
   }
    });
   })};
+
+
+  function showToast(message, type = "info", duration = 3000) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+
+  setTimeout(() => {
+    toast.className = "toast hidden";
+  }, duration);
+}
