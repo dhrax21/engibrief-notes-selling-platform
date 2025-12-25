@@ -113,13 +113,16 @@ async function render() {
       </button>
       ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
     `;
+    
       if (isAdmin) {
         const deleteBtn = card.querySelector(".delete-btn");
 
-         deleteBtn.addEventListener("click", async () => {
-         await deleteEbook(ebook.id);
+        deleteBtn.addEventListener("click", async (e) => {
+          const ebookId = e.currentTarget.dataset.id;
+          await deleteEbook(ebookId);
         });
       }
+
 
 
     card.querySelector(".ebook-btn").onclick = async () => {
