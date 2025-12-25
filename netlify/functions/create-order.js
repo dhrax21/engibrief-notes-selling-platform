@@ -2,54 +2,74 @@ const Razorpay = require("razorpay");
 
 exports.handler = async (event) => {
   try {
-    // 1. Validate HTTP method
+    // 1️⃣ Allow only POST
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
+        headers: { Allow: "POST" },
         body: "Method Not Allowed",
       };
     }
 
-    // 2. Parse amount from frontend
+    // 2️⃣ Ensure body exists
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Request body missing" }),
+      };
+    }
+
+    // 3️⃣ Parse request
     const { amount } = JSON.parse(event.body);
 
-    if (!amount || amount < 1) {
+    if (typeof amount !== "number" || amount < 1) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Invalid amount" }),
       };
     }
 
-    // 3. Initialize Razorpay using Netlify env vars
+    // 4️⃣ Ensure env vars exist
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Razorpay keys not configured" }),
+      };
+    }
+
+    // 5️⃣ Init Razorpay
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    // 4. Create Razorpay order
+    // 6️⃣ Create order
     const order = await razorpay.orders.create({
-      amount: amount * 100, // INR → paise
+      amount: Math.round(amount * 100), // paise
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     });
 
-    // 5. Return order to frontend
+    // 7️⃣ Success response
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(order),
+      body: JSON.stringify({
+        id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+      }),
     };
-
   } catch (error) {
-    console.error("Create order error:", error);
+    console.error("Razorpay create-order error:", error);
 
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: "Failed to create order",
-        details: error.message,
+        error: "Order creation failed",
+        message: error.message,
       }),
     };
   }

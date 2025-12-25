@@ -156,3 +156,59 @@ document.addEventListener("DOMContentLoaded", async () => {
     await render();
   }
 });
+
+
+
+
+
+// top or bottom of product.js (global scope)
+
+window.buyNow = async function (ebookId, price) {
+  try {
+    const res = await fetch("/.netlify/functions/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: price }),
+    });
+
+    const order = await res.json();
+
+    const options = {
+      key: "rzp_test_xxxxx",
+      order_id: order.id,
+      amount: order.amount,
+      currency: "INR",
+      name: "EngiBriefs",
+      handler: async function (response) {
+        const verifyRes = await fetch(
+          "/.netlify/functions/verify-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              ebookId,
+            }),
+          }
+        );
+
+        const result = await verifyRes.json();
+
+        if (result.success) {
+          purchasedSet.add(ebookId);
+          downloadEbook(e.pdf_path, ebookId);
+          alert("Payment successful");
+        } else {
+          alert("Payment verification failed");
+        }
+      },
+    };
+
+    new Razorpay(options).open();
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed");
+  }
+};
