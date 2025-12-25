@@ -2,3 +2,6 @@ firebase-config.js
 serviceAccountKey.json
 server.js
 .env
+
+# Local Netlify folder
+.netlify
