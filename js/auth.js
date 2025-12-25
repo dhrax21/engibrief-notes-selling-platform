@@ -1,6 +1,35 @@
 import { supabase } from "/js/supabase.js";
 
 
+
+
+/* =========================
+   AUTH PAGE GUARD
+========================= */
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data } = await supabase.auth.getSession();
+  const user = data?.session?.user;
+
+  if (user) {
+    // Optional UX
+    const toast = document.getElementById("toast");
+    if (toast) {
+      toast.textContent = "You are already logged in";
+      toast.className = "toast info show";
+    }
+
+    setTimeout(() => {
+      window.location.replace("/index.html");
+    }, 1000);
+
+    return;
+  }
+
+  // ✅ If NOT logged in, auth page continues normally
+});
+
+
+
 /* =========================
    SIGNUP
 ========================= */

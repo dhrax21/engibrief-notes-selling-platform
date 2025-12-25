@@ -1,22 +1,26 @@
 import { supabase } from "/js/supabase.js";
 
+/* =========================
+   GLOBAL STATE
+========================= */
+let allEbooks = [];
+const purchasedSet = new Set();
+let user = null;
+let isAdmin = false;
+
+/* =========================
+   INIT
+========================= */
 document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("ebookGrid");
   const deptFilter = document.getElementById("departmentFilter");
   const sortFilter = document.getElementById("sortFilter");
 
-  if (!grid || !deptFilter || !sortFilter) return;
+  if (!grid) return;
 
-  let allEbooks = [];
-  const purchasedSet = new Set();
+  const { data: sessionData } = await supabase.auth.getSession();
+  user = sessionData?.session?.user ?? null;
 
-  /* =========================
-     AUTH
-  ========================= */
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
-
-  let isAdmin = false;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -31,10 +35,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadEbooks();
   await render();
 
+  deptFilter?.addEventListener("change", render);
+  sortFilter?.addEventListener("change", render);
+});
 
-  async function loadPurchases() {
+/* =========================
+   LOAD PURCHASES
+========================= */
+async function loadPurchases() {
   purchasedSet.clear();
-
   if (!user) return;
 
   const { data, error } = await supabase
@@ -43,126 +52,87 @@ document.addEventListener("DOMContentLoaded", async () => {
     .eq("user_id", user.id);
 
   if (error) {
-    console.error("Failed to load purchases:", error);
+    console.error(error);
     return;
   }
 
   data.forEach(p => purchasedSet.add(p.ebook_id));
 }
 
+/* =========================
+   LOAD EBOOKS
+========================= */
+async function loadEbooks() {
+  const { data } = await supabase
+    .from("ebooks")
+    .select("*")
+    .eq("is_active", true);
 
-  deptFilter.addEventListener("change", render);
-  sortFilter.addEventListener("change", render);
+  allEbooks = data || [];
+}
 
-  /* =========================
-     LOAD EBOOKS
-  ========================= */
-  async function loadEbooks() {
-    const { data } = await supabase
-      .from("ebooks")
-      .select("*")
-      .eq("is_active", true);
+/* =========================
+   COVER URL (PUBLIC)
+========================= */
+function getCoverUrl(path) {
+  if (!path) return null;
+  const { data } = supabase.storage
+    .from("ebook-covers")
+    .getPublicUrl(path);
+  return data.publicUrl;
+}
 
-    allEbooks = data || [];
+/* =========================
+   RENDER
+========================= */
+async function render() {
+  const grid = document.getElementById("ebookGrid");
+  const deptFilter = document.getElementById("departmentFilter");
+
+  let ebooks = [...allEbooks];
+
+  if (deptFilter?.value !== "ALL") {
+    ebooks = ebooks.filter(e => e.department === deptFilter.value);
   }
 
-  /* =========================
-     COVER (PUBLIC)
-  ========================= */
-  function getCoverUrl(path) {
-    if (!path) return null;
+  grid.innerHTML = "";
 
-    const { data } = supabase.storage
-      .from("ebook-covers")
-      .getPublicUrl(path);
+  for (const e of ebooks) {
+    const cover = getCoverUrl(e.cover_path);
 
-    return data.publicUrl;
-  }
+    const card = document.createElement("div");
+    card.className = "ebook-card";
 
-  /* =========================
-     RENDER
-  ========================= */
-  async function render() {
-    let ebooks = [...allEbooks];
+    card.innerHTML = `
+      ${cover ? `<img src="${cover}" />` : ""}
+      <h3>${e.title}</h3>
+      <p>${e.subject}</p>
+      <span>₹${e.price}</span>
+      <button class="ebook-btn">
+        ${purchasedSet.has(e.id) ? "Download" : "Buy Now"}
+      </button>
+      ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
+    `;
 
-    if (deptFilter.value !== "ALL") {
-      ebooks = ebooks.filter(e => e.department === deptFilter.value);
-    }
+    card.querySelector(".ebook-btn").onclick = async () => {
+      if (!user) {
+        alert("Please login first");
+        location.href = "/pages/login.html";
+        return;
+      }
 
-    grid.innerHTML = "";
-
-    if (!ebooks.length) {
-      grid.innerHTML = "<p>No ebooks available.</p>";
-      return;
-    }
-
-    for (const e of ebooks) {
-      const coverUrl = getCoverUrl(e.cover_path);
-
-      const card = document.createElement("div");
-      card.className = "ebook-card";
-      card.dataset.ebookId = e.id;
-
-      card.innerHTML = `
-        ${coverUrl ? `<img src="${coverUrl}" />` : ""}
-        <div class="ebook-info">
-          <h3>${e.title}</h3>
-          <p>${e.subject}</p>
-          <div class="ebook-meta">
-            <span>₹${e.price}</span>
-            <span>${e.department}</span>
-          </div>
-          <div class="ebook-actions">
-            <button class="ebook-btn">
-              ${purchasedSet.has(e.id) ? "Download" : "Buy Now"}
-            </button>
-            ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
-          </div>
-        </div>
-      `;
-
-        card.querySelector(".ebook-btn").onclick = () => {
       purchasedSet.has(e.id)
         ? downloadEbook(e.pdf_path, e.id)
         : buyNow(e.id, e.price, e.pdf_path);
     };
 
-      const del = card.querySelector(".delete-btn");
-      if (del) {
-        del.onclick = () => deleteEbookSoft(e);
-      }
-
-      grid.appendChild(card);
-    }
+    grid.appendChild(card);
   }
+}
 
-  /* =========================
-     DELETE (SOFT)
-  ========================= */
-  async function deleteEbookSoft(ebook) {
-    if (!confirm("Remove this ebook?")) return;
-
-    const { error } = await supabase.rpc("soft_delete_ebook", {
-      ebook_id: ebook.id
-    });
-
-    if (error) {
-      alert("Delete failed");
-      return;
-    }
-
-    allEbooks = allEbooks.filter(e => e.id !== ebook.id);
-
-    await render();
-  }
-});
-
-
-
-
-
-// top or bottom of product.js (global scope)
-
+/* =========================
+   BUY NOW
+========================= */
 window.buyNow = async function (ebookId, price, pdfPath) {
   try {
     const res = await fetch("/.netlify/functions/create-order", {
@@ -171,14 +141,13 @@ window.buyNow = async function (ebookId, price, pdfPath) {
       body: JSON.stringify({ amount: price }),
     });
 
-    if (!res.ok) throw new Error("Order creation failed");
+    if (!res.ok) throw new Error("Order failed");
 
     const order = await res.json();
 
     const options = {
       key: "rzp_test_Rt7n1yYlzd3Lig",
-      order_id: order.id,
-      amount: order.amount,
+      order_id: order.id, // ✅ DO NOT PASS AMOUNT
       currency: "INR",
       name: "EngiBriefs",
       handler: async function (response) {
@@ -200,11 +169,11 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
         if (result.success) {
           purchasedSet.add(ebookId);
-          await render(); 
-          downloadEbook(pdfPath, ebookId);
+          await render();
+          await downloadEbook(pdfPath, ebookId);
           alert("Payment successful");
         } else {
-          alert("Payment verification failed");
+          alert("Verification failed");
         }
       },
     };
@@ -216,21 +185,22 @@ window.buyNow = async function (ebookId, price, pdfPath) {
   }
 };
 
-
-
-async function downloadEbook(pdfPath) {
-  if (!pdfPath) {
-    alert("Download link not available");
+/* =========================
+   DOWNLOAD (SECURE)
+========================= */
+async function downloadEbook(pdfPath, ebookId) {
+  if (!user || !purchasedSet.has(ebookId)) {
+    alert("Unauthorized");
     return;
   }
 
   const { data, error } = await supabase.storage
-    .from("ebooks") // 🔁 your PDF bucket name
-    .createSignedUrl(pdfPath, 60); // valid for 60 seconds
+    .from("ebooks") // PRIVATE bucket
+    .createSignedUrl(pdfPath, 60);
 
   if (error) {
-    console.error("Download error:", error);
-    alert("Unable to download file");
+    console.error(error);
+    alert("Download failed");
     return;
   }
 

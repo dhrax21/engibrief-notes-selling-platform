@@ -1,15 +1,13 @@
 import { supabase } from "/js/supabase.js";
 
+let redirected = false;
 
 /* =========================
    TOAST (SAFE)
 ========================= */
-function showToast(message, type = "info", duration = 3000) {
+function showToast(message, type = "info", duration = 1500) {
   const toast = document.getElementById("toast");
-  if (!toast) {
-    console.warn("Toast element not found");
-    return;
-  }
+  if (!toast) return;
 
   toast.textContent = message;
   toast.className = `toast ${type} show`;
@@ -20,18 +18,21 @@ function showToast(message, type = "info", duration = 3000) {
 }
 
 /* =========================
-   AUTH REDIRECT
+   AUTH PAGE GUARD
 ========================= */
 document.addEventListener("DOMContentLoaded", async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  if (redirected) return;
+
+  const { data } = await supabase.auth.getSession();
+  const session = data?.session;
 
   if (session) {
-    // ✅ Show popup instead of alert
-    showToast("You are already logged in", "info", 1000);
+    redirected = true;
 
-    // ✅ Redirect AFTER user sees popup
+    showToast("You are already logged in", "info");
+
     setTimeout(() => {
-      window.location.href = "/index.html";
-    }, 2000);
+      window.location.replace("/index.html"); // ✅ safer than href
+    }, 1200);
   }
 });
