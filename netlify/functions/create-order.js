@@ -2,16 +2,15 @@ const Razorpay = require("razorpay");
 
 exports.handler = async (event) => {
   try {
-    // 1️⃣ Allow only POST
+    // Allow only POST
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
         headers: { Allow: "POST" },
-        body: "Method Not Allowed",
+        body: JSON.stringify({ error: "Method Not Allowed" }),
       };
     }
 
-    // 2️⃣ Ensure body exists
     if (!event.body) {
       return {
         statusCode: 400,
@@ -19,43 +18,44 @@ exports.handler = async (event) => {
       };
     }
 
-    // 3️⃣ Parse request
     const { amount } = JSON.parse(event.body);
 
+    // Amount validation (₹)
     if (typeof amount !== "number" || amount < 1) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Invalid amount" }),
+        body: JSON.stringify({
+          error: "Amount must be at least ₹1",
+        }),
       };
     }
 
-    // 4️⃣ Ensure env vars exist
+    // Env validation
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "Razorpay keys not configured" }),
+        body: JSON.stringify({
+          error: "Razorpay keys not configured",
+        }),
       };
     }
 
-    // 5️⃣ Init Razorpay
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    // 6️⃣ Create order
+    // Convert rupees → paise (ONCE)
     const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100), // paise
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
+      payment_capture: 1,
     });
 
-    // 7️⃣ Success response
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: order.id,
         amount: order.amount,

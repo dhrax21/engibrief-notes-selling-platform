@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!grid || !deptFilter || !sortFilter) return;
 
   let allEbooks = [];
-  let purchasedSet = new Set();
+  const purchasedSet = new Set();
 
   /* =========================
      AUTH
@@ -200,6 +200,7 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
         if (result.success) {
           purchasedSet.add(ebookId);
+          await render(); 
           downloadEbook(pdfPath, ebookId);
           alert("Payment successful");
         } else {
@@ -217,15 +218,25 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
 
 
-function downloadEbook(pdfPath, ebookId) {
+async function downloadEbook(pdfPath) {
   if (!pdfPath) {
     alert("Download link not available");
     return;
   }
 
+  const { data, error } = await supabase.storage
+    .from("ebooks") // 🔁 your PDF bucket name
+    .createSignedUrl(pdfPath, 60); // valid for 60 seconds
+
+  if (error) {
+    console.error("Download error:", error);
+    alert("Unable to download file");
+    return;
+  }
+
   const link = document.createElement("a");
-  link.href = pdfPath;
-  link.download = ""; // forces download
+  link.href = data.signedUrl;
+  link.download = "";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
