@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // top or bottom of product.js (global scope)
 
-window.buyNow = async function (ebookId, price) {
+window.buyNow = async function (ebookId, price, pdfPath) {
   try {
     const res = await fetch("/.netlify/functions/create-order", {
       method: "POST",
@@ -171,10 +171,12 @@ window.buyNow = async function (ebookId, price) {
       body: JSON.stringify({ amount: price }),
     });
 
+    if (!res.ok) throw new Error("Order creation failed");
+
     const order = await res.json();
 
     const options = {
-      key: "rzp_test_xxxxx",
+      key: "rzp_test_Rt7n1yYlzd3Lig",
       order_id: order.id,
       amount: order.amount,
       currency: "INR",
@@ -198,7 +200,7 @@ window.buyNow = async function (ebookId, price) {
 
         if (result.success) {
           purchasedSet.add(ebookId);
-          downloadEbook(e.pdf_path, ebookId);
+          downloadEbook(pdfPath, ebookId);
           alert("Payment successful");
         } else {
           alert("Payment verification failed");
