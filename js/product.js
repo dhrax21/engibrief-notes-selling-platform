@@ -3,10 +3,16 @@ import { supabase } from "/js/supabase.js";
 /* =========================
    GLOBAL STATE
 ========================= */
+
+
 let allEbooks = [];
-let purchasedSet = new Set();
+
 let user = null;
 let isAdmin = false;
+
+const purchasedSet = new Set(
+  JSON.parse(localStorage.getItem("purchasedEbooks") || "[]")
+);
 
 /* =========================
    INIT
@@ -149,136 +155,108 @@ async function render() {
 /* =========================
    BUY NOW
 ========================= */
-window.buyNow = async function (ebookId, price, pdfPath) {
-  if (!user) {
-    showToast("Please login to continue", "info", 2000);
-    setTimeout(() => {
-      window.location.href = "/pages/auth.html";
-    }, 1800);
-    return;
-  }
 
+window.buyNow = async function (ebookId, price, filePath) {
   try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      showToast("Please login first", "info", 2000);
+      window.location.href = "/pages/auth.html";
+      return;
+    }
+
+    // Create order
     const res = await fetch("/.netlify/functions/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: price }),
+      body: JSON.stringify({ amount: price * 100 }),
     });
 
-    if (!res.ok) {
-      throw new Error("Order creation failed");
-    }
+    const text = await res.text();
+    const order = text ? JSON.parse(text) : {};
 
-    const order = await res.json();
+    if (!res.ok) throw new Error("Order creation failed");
 
     const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig",
-      order_id: order.id, 
+      key: "rzp_test_xxxxx",
+      order_id: order.id,
       currency: "INR",
       name: "EngiBriefs",
-      description: "E-Book Purchase",
 
       handler: async function (response) {
-        try {
-          const verifyRes = await fetch(
-            "/.netlify/functions/verify-payment",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                ebookId,
-              }),
-            }
-          );
-
-          if (!verifyRes.ok) {
-            throw new Error("Payment verification failed");
+        const verifyRes = await fetch(
+          "/.netlify/functions/verify-payment",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              ebookId,
+              userId: user.id,
+              amount: price,
+            }),
           }
+        );
 
-          const result = await verifyRes.json();
+        const result = await verifyRes.json();
+        if (!verifyRes.ok || !result.success)
+          throw new Error("Verification failed");
 
-          if (!result.success) {
-            showToast("Payment verification failed", "error", 2500);
-            return;
-          }
-          purchasedSet = purchasedSet || new Set();
-          purchasedSet.add(ebookId);
+        purchasedSet.add(ebookId);
+        localStorage.setItem(
+          "purchasedEbooks",
+          JSON.stringify([...purchasedSet])
+        );
 
-          showToast("Payment successful", "success", 1800);
+        showToast("Payment successful", "success", 1500);
+        await render();
 
-          await render();
-
-          setTimeout(() => {
-            downloadEbook(pdfPath, ebookId);
-          }, 800);
-
-        } catch (err) {
-          console.error("Verification error:", err);
-          showToast("Payment verification error", "error", 2500);
-        }
-      },
-
-      modal: {
-        ondismiss: function () {
-          showToast("Payment cancelled", "info", 2000);
-        },
+        downloadEbook(filePath, ebookId);
       },
     };
-    new Razorpay(options).open();
 
+    new Razorpay(options).open();
   } catch (err) {
     console.error("Buy now error:", err);
-    showToast("Payment failed. Please try again.", "error", 2500);
+    showToast("Payment failed", "error", 2000);
   }
 };
 
 
+  
+
 /* =========================
    DOWNLOAD (SECURE)
 ========================= */
-async function downloadEbook(pdfPath, ebookId) {
-  // 🔐 Auth check
-  if (!user) {
-    showToast("Please login to download this e-book", "info", 2000);
+async function downloadEbook(filePath, ebookId) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    setTimeout(() => {
-      window.location.href = "/pages/auth.html";
-    }, 1800);
+  const res = await fetch("/.netlify/functions/download-ebook", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ebookId,
+      userId: user.id,
+      filePath,
+    }),
+  });
 
+  const data = await res.json();
+  if (!res.ok) {
+    showToast("Download failed", "error", 2000);
     return;
   }
 
-  // 🔒 Purchase check
-  if (!purchasedSet || !purchasedSet.has(ebookId)) {
-    showToast("You have not purchased this e-book", "error", 2500);
-    return;
-  }
-
-  try {
-    const { data, error } = await supabase.storage
-      .from("ebooks") // PRIVATE bucket
-      .createSignedUrl(pdfPath, 60); // 60 seconds
-
-    if (error) throw error;
-
-    // ⬇️ Trigger secure download
-    const link = document.createElement("a");
-    link.href = data.signedUrl;
-    link.download = "";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showToast("Download started", "success", 1500);
-
-  } catch (err) {
-    console.error("Download error:", err);
-    showToast("Download failed. Please try again.", "error", 2500);
-  }
+  window.open(data.url, "_blank");
 }
+
 
 async function deleteEbook(ebookId) {
   try {
