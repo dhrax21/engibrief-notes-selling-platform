@@ -23,7 +23,7 @@
       <button id="signupTab">Sign Up</button>
     </div>
 
-    <!-- ===== EMAIL AUTH ===== -->
+    <!-- ===== EMAIL AUTH ONLY ===== -->
     <div id="emailAuth">
 
       <!-- Full name ONLY for signup -->
@@ -39,6 +39,7 @@
         id="email"
         class="auth-input"
         placeholder="Email"
+        required
       />
 
       <input
@@ -52,50 +53,16 @@
         Continue
       </button>
 
-  
+      <!-- GOOGLE AUTH -->
       <button class="auth-btn google" onclick="loginWithGoogle()">
         <img src="/assets/g-logo.png" alt="Google" />
         <span>Continue with Google</span>
       </button>
 
-
       <p class="auth-link">
         <a href="/pages/forgot-password.html">Forgot password?</a>
       </p>
 
-    </div>
-
-    <!-- ===== PHONE AUTH ===== -->
-    <div id="phoneAuth" class="hidden">
-
-      <input
-        type="tel"
-        id="phone"
-        class="auth-input"
-        placeholder="+91XXXXXXXXXX"
-      />
-
-      <button class="auth-btn" onclick="sendOTP()">
-        Send OTP
-      </button>
-
-      <input
-        type="text"
-        id="otp"
-        class="auth-input"
-        placeholder="Enter OTP"
-      />
-
-      <button class="auth-btn" onclick="verifyOTP()">
-        Verify OTP
-      </button>
-
-    </div>
-
-    <!-- ===== AUTH METHOD TOGGLE ===== -->
-    <div class="auth-toggle secondary">
-      <button id="emailTab" class="active">Email</button>
-      <button id="phoneTab">Phone</button>
     </div>
 
   </div>

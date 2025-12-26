@@ -4,7 +4,6 @@ import { supabase } from "/js/supabase.js";
    🔒 AUTH PAGE GUARD (CRITICAL)
 ===================================================== */
 
-// 1️⃣ Immediate session check (blocks refresh, direct access)
 const { data: sessionData } = await supabase.auth.getSession();
 
 if (sessionData?.session?.user) {
@@ -12,7 +11,6 @@ if (sessionData?.session?.user) {
   throw new Error("Auth page blocked: user already logged in");
 }
 
-// 2️⃣ Listen to auth state changes (Google OAuth, back button)
 supabase.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     window.location.replace("/index.html");
@@ -22,8 +20,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 /* =====================================================
    STATE
 ===================================================== */
-let mode = "login";        // login | signup
-let authMethod = "email"; // email | phone
+let mode = "login"; 
 
 /* =====================================================
    DOM ELEMENTS
@@ -31,27 +28,18 @@ let authMethod = "email"; // email | phone
 const loginTab = document.getElementById("loginTab");
 const signupTab = document.getElementById("signupTab");
 
-const emailTab = document.getElementById("emailTab");
-const phoneTab = document.getElementById("phoneTab");
-
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
-
-const emailAuthBox = document.getElementById("emailAuth");
-const phoneAuthBox = document.getElementById("phoneAuth");
 
 const authTitle = document.getElementById("authTitle");
 const authSubtitle = document.getElementById("authSubtitle");
 
 /* =====================================================
-   TAB TOGGLING
+   TAB TOGGLING (LOGIN / SIGNUP)
 ===================================================== */
 loginTab.addEventListener("click", () => switchMode("login"));
 signupTab.addEventListener("click", () => switchMode("signup"));
-
-emailTab.addEventListener("click", () => switchMethod("email"));
-phoneTab.addEventListener("click", () => switchMethod("phone"));
 
 function switchMode(newMode) {
   mode = newMode;
@@ -68,16 +56,6 @@ function switchMode(newMode) {
       : "Create your Engibrief account";
 }
 
-function switchMethod(method) {
-  authMethod = method;
-
-  emailTab.classList.toggle("active", method === "email");
-  phoneTab.classList.toggle("active", method === "phone");
-
-  emailAuthBox.classList.toggle("hidden", method !== "email");
-  phoneAuthBox.classList.toggle("hidden", method !== "phone");
-}
-
 /* =====================================================
    EMAIL AUTH (LOGIN + SIGNUP)
 ===================================================== */
@@ -92,6 +70,7 @@ window.emailAuth = async function () {
   }
 
   try {
+    // SIGNUP
     if (mode === "signup") {
       if (!name) {
         showToast("Full name required", "error");
@@ -103,8 +82,8 @@ window.emailAuth = async function () {
         password,
         options: {
           data: { name },
-          emailRedirectTo: `${window.location.origin}/pages/auth-callback.html`
-        }
+          emailRedirectTo: `${window.location.origin}/pages/auth-callback.html`,
+        },
       });
 
       if (error) throw error;
@@ -121,7 +100,7 @@ window.emailAuth = async function () {
     // LOGIN
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (error) throw error;
@@ -129,7 +108,6 @@ window.emailAuth = async function () {
     if (data?.session) {
       window.location.replace("/index.html");
     }
-
   } catch (err) {
     console.error(err);
     showToast(err.message || "Authentication failed", "error");
@@ -140,24 +118,20 @@ window.emailAuth = async function () {
    GOOGLE AUTH
 ===================================================== */
 window.loginWithGoogle = async function () {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/pages/auth-callback.html`
-    }
-  });
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/pages/auth-callback.html`,
+      },
+    });
 
-  if (error) {
-    console.error(error);
+    if (error) throw error;
+  } catch (err) {
+    console.error(err);
     showToast("Google login failed", "error");
   }
 };
-
-/* =====================================================
-   PHONE AUTH (STUB)
-===================================================== */
-window.sendOTP = () => showToast("Phone auth not enabled yet", "info");
-window.verifyOTP = () => showToast("Phone auth not enabled yet", "info");
 
 /* =====================================================
    TOAST
@@ -177,4 +151,4 @@ function showToast(message, type = "info", duration = 3000) {
   }, duration);
 }
 
-console.log("✅ auth-unified loaded (guard active)");
+

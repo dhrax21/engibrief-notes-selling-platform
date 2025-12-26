@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Signing you in...</title>
+  <meta charset="UTF-8" />
+  <title>Signing in...</title>
 </head>
 <body>
-  <p>Signing you in, please wait...</p>
+  <p>Signing you in…</p>
 
   <script type="module">
-    import { supabase } from "../js/supabase.js";
+    import { supabase } from "/js/supabase.js";
 
     const { data, error } = await supabase.auth.getSession();
 
     if (error) {
-      alert("Login failed");
-      window.location.href = "/pages/login.html";
-    } else {
+      console.error(error);
+      window.location.href = "/pages/auth.html";
+    }
+
+    if (data.session) {
+      // Login successful
       window.location.href = "/";
+    } else {
+      // Something went wrong
+      window.location.href = "/pages/auth.html";
     }
   </script>
 </body>
