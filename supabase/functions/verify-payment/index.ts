@@ -38,14 +38,20 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { error } = await supabase.from("purchases").insert({
+  const { error } = await supabase
+  .from("purchases")
+  .upsert(
+    {
       user_id: userId,
       ebook_id: ebookId,
-      razorpay_order_id,
-      razorpay_payment_id,
+      order_id: razorpay_order_id,
+      payment_id: razorpay_payment_id,
       amount,
-      status: "SUCCESS",
-    });
+      payment_status: "paid",
+    },
+    { onConflict: "user_id,ebook_id" }
+  );
+
 
     if (error) throw error;
 
