@@ -1,57 +1,42 @@
-import { supabase } from "/js/supabase.js";
-const EDGE_BASE ="https://vzetfjzfvfhfvcqpkbbd.supabase.co/functions/v1";
+import {
+  supabase,
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+} from "/js/supabase.js";
 
+/* =========================
+   CONSTANTS
+========================= */
+
+const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
 
 /* =========================
    GLOBAL STATE
 ========================= */
 
-
+let user = null;
 let allEbooks = [];
 
-let user = null;
-let isAdmin = false;
-
-const purchasedSet = new Set(
-  JSON.parse(localStorage.getItem("purchasedEbooks") || "[]")
-);
+const purchasedSet = new Set();
 
 /* =========================
    INIT
 ========================= */
+
 document.addEventListener("DOMContentLoaded", async () => {
-  const grid = document.getElementById("ebookGrid");
-  const deptFilter = document.getElementById("departmentFilter");
-  const sortFilter = document.getElementById("sortFilter");
-
-  if (!grid) return;
-
-  const { data: sessionData } = await supabase.auth.getSession();
-  user = sessionData?.session?.user ?? null;
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    isAdmin = profile?.role === "admin";
-  }
+  const { data } = await supabase.auth.getSession();
+  user = data?.session?.user ?? null;
 
   await loadPurchases();
   await loadEbooks();
-  await render();
-
-  deptFilter?.addEventListener("change", render);
-  sortFilter?.addEventListener("change", render);
+  render();
 });
 
 /* =========================
    LOAD PURCHASES
 ========================= */
+
 async function loadPurchases() {
-  purchasedSet.clear();
   if (!user) return;
 
   const { data, error } = await supabase
@@ -70,6 +55,7 @@ async function loadPurchases() {
 /* =========================
    LOAD EBOOKS
 ========================= */
+
 async function loadEbooks() {
   const { data } = await supabase
     .from("ebooks")
@@ -80,226 +66,134 @@ async function loadEbooks() {
 }
 
 /* =========================
-   COVER URL (PUBLIC)
-========================= */
-function getCoverUrl(path) {
-  if (!path) return null;
-  const { data } = supabase.storage
-    .from("ebook-covers")
-    .getPublicUrl(path);
-  return data.publicUrl;
-}
-
-/* =========================
    RENDER
 ========================= */
-async function render() {
+
+function render() {
   const grid = document.getElementById("ebookGrid");
-  const deptFilter = document.getElementById("departmentFilter");
-
   if (!grid) return;
-
-  let ebooks = [...allEbooks];
-
-  if (deptFilter?.value !== "ALL") {
-    ebooks = ebooks.filter(b => b.department === deptFilter.value);
-  }
 
   grid.innerHTML = "";
 
-  for (const ebook of ebooks) {
-    const cover = getCoverUrl(ebook.cover_path);
+  for (const ebook of allEbooks) {
+    const btnText = purchasedSet.has(ebook.id)
+      ? "Download"
+      : "Buy Now";
 
     const card = document.createElement("div");
     card.className = "ebook-card";
-    card.dataset.id = ebook.id;
 
     card.innerHTML = `
-      ${cover ? `<img src="${cover}" />` : ""}
       <h3>${ebook.title}</h3>
       <p>${ebook.subject}</p>
       <span>₹${ebook.price}</span>
-
-      <button class="ebook-btn">
-        ${purchasedSet.has(ebook.id) ? "Download" : "Buy Now"}
+      <button onclick="buyNow('${ebook.id}', ${ebook.price}, '${ebook.pdf_path}')">
+        ${btnText}
       </button>
-
-      ${isAdmin ? `<button class="delete-btn">Delete</button>` : ""}
     `;
-
-    // DELETE (admin only)
-    const deleteBtn = card.querySelector(".delete-btn");
-    if (deleteBtn) {
-      deleteBtn.addEventListener("click", async (evt) => {
-        const ebookId = evt.currentTarget
-          .closest(".ebook-card")
-          ?.dataset.id;
-        if (!ebookId) return;
-        await deleteEbook(ebookId);
-      });
-    }
-
-    // BUY / DOWNLOAD
-    card.querySelector(".ebook-btn").addEventListener("click", async () => {
-      if (purchasedSet.has(ebook.id)) {
-        await downloadEbook(ebook.pdf_path, ebook.id);
-      } else {
-        await buyNow(ebook.id, ebook.price, ebook.pdf_path);
-      }
-    });
 
     grid.appendChild(card);
   }
 }
 
-
-
 /* =========================
-   BUY NOW
+   BUY NOW (GLOBAL)
 ========================= */
 
 window.buyNow = async function (ebookId, price, pdfPath) {
   try {
     if (!user) {
-      showToast("Please login to continue", "info", 1800);
-
-      setTimeout(() => {
-        window.location.href = "/pages/auth.html";
-      }, 1600);
-
+      alert("Please login to continue");
+      window.location.href = "/pages/auth.html";
       return;
     }
 
-    // 1️⃣ Create order
+    /* 1️⃣ Create Razorpay order */
     const res = await fetch(`${EDGE_BASE}/create-order`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: price * 100 }),
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ amount: price * 100 })
     });
 
-    const order = await res.json();
     if (!res.ok) throw new Error("Order creation failed");
 
-    // 2️⃣ Razorpay checkout
+    const order = await res.json();
+
+    /* 2️⃣ Razorpay checkout */
     const options = {
-      key: "rzp_test_xxxxx",
+      key: "rzp_test_xxxxx", // Razorpay KEY_ID (public)
       order_id: order.id,
       currency: "INR",
       name: "EngiBriefs",
 
       handler: async function (response) {
+        /* 3️⃣ Verify payment */
         const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          },
           body: JSON.stringify({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
             ebookId,
             userId: user.id,
-            amount: price,
-          }),
+            amount: price
+          })
         });
 
-        const result = await verifyRes.json();
-        if (!verifyRes.ok || !result.success) {
-          throw new Error("Verification failed");
-        }
+        if (!verifyRes.ok) throw new Error("Verification failed");
 
         purchasedSet.add(ebookId);
-        localStorage.setItem(
-          "purchasedEbooks",
-          JSON.stringify([...purchasedSet])
-        );
+        render();
 
-        showToast("Payment successful", "success", 1500);
-        await render();
-
+        /* 4️⃣ Download */
         await downloadEbook(pdfPath, ebookId);
-      },
+      }
     };
 
     new Razorpay(options).open();
+
   } catch (err) {
     console.error(err);
-    showToast("Payment failed", "error", 2500);
+    alert("Payment failed");
   }
 };
 
-
-
-
-  
-
 /* =========================
-   DOWNLOAD (SECURE)
+   DOWNLOAD
 ========================= */
 
 async function downloadEbook(pdfPath, ebookId) {
   try {
-    if (!user) {
-      showToast("Please login first", "info", 2000);
-      return;
-    }
-
     const res = await fetch(`${EDGE_BASE}/download-ebook`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+      },
       body: JSON.stringify({
         ebookId,
         userId: user.id,
-        filePath: pdfPath,
-      }),
+        filePath: pdfPath
+      })
     });
 
+    if (!res.ok) throw new Error("Download failed");
+
     const data = await res.json();
-    if (!res.ok || !data.url) {
-      throw new Error("Download failed");
-    }
-
     window.open(data.url, "_blank");
-  } catch (err) {
-    console.error(err);
-    showToast("Download failed", "error", 2500);
-  }
-}
-
-
-// -----------------------//
-async function deleteEbook(ebookId) {
-  try {
-    const { error } = await supabase
-      .from("ebooks")
-      .update({ is_active: false })
-      .eq("id", ebookId);
-
-    if (error) throw error;
-
-    allEbooks = allEbooks.filter(e => e.id !== ebookId);
-
-    showToast("E-book deleted", "success", 2000);
-
-    await render();
 
   } catch (err) {
     console.error(err);
-    showToast("Delete failed", "error", 2500);
+    alert("Download failed");
   }
-}
-
-
-
-
-
-
-function showToast(message, type = "info", duration = 3000) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
-
-  toast.textContent = message;
-  toast.className = `toast ${type} show`;
-
-  setTimeout(() => {
-    toast.className = "toast hidden";
-  }, duration);
 }
