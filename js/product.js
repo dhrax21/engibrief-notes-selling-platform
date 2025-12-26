@@ -4,7 +4,7 @@ import { supabase } from "/js/supabase.js";
    GLOBAL STATE
 ========================= */
 let allEbooks = [];
-const purchasedSet = new Set();
+let purchasedSet = new Set();
 let user = null;
 let isAdmin = false;
 
