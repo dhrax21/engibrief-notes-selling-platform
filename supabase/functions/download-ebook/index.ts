@@ -1,6 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const { ebookId, userId, filePath } = await req.json();
 
@@ -20,7 +25,7 @@ Deno.serve(async (req) => {
     if (!purchase) {
       return new Response(
         JSON.stringify({ error: "Not purchased" }),
-        { status: 403 }
+        { status: 403, headers: corsHeaders }
       );
     }
 
@@ -33,15 +38,15 @@ Deno.serve(async (req) => {
       .from("ebooks")
       .createSignedUrl(filePath, 60);
 
-    return new Response(
-      JSON.stringify({ url: data.signedUrl }),
-      { status: 200 }
-    );
+    return new Response(JSON.stringify({ url: data.signedUrl }), {
+      status: 200,
+      headers: corsHeaders,
+    });
   } catch (err) {
-    console.error("Download error:", err);
+    console.error(err);
     return new Response(
       JSON.stringify({ error: "Download failed" }),
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 });

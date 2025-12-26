@@ -1,8 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 import crypto from "node:crypto";
+import { corsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const payload = await req.json();
 
@@ -25,7 +29,7 @@ Deno.serve(async (req) => {
     if (expectedSignature !== razorpay_signature) {
       return new Response(
         JSON.stringify({ success: false }),
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -45,12 +49,15 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: corsHeaders,
+    });
   } catch (err) {
-    console.error("Verify payment error:", err);
+    console.error(err);
     return new Response(
       JSON.stringify({ success: false }),
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 });

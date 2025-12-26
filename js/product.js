@@ -158,14 +158,19 @@ async function render() {
    BUY NOW
 ========================= */
 
-async function buyNow(ebookId, price, pdfPath) {
+window.buyNow = async function (ebookId, price, pdfPath) {
   try {
     if (!user) {
-      showToast("Please login to continue", "info", 2000);
+      showToast("Please login to continue", "info", 1800);
+
+      setTimeout(() => {
+        window.location.href = "/pages/auth.html";
+      }, 1600);
+
       return;
     }
 
-    // 1️⃣ Create Razorpay order
+    // 1️⃣ Create order
     const res = await fetch(`${EDGE_BASE}/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -175,31 +180,26 @@ async function buyNow(ebookId, price, pdfPath) {
     const order = await res.json();
     if (!res.ok) throw new Error("Order creation failed");
 
-    // 2️⃣ Open Razorpay checkout
+    // 2️⃣ Razorpay checkout
     const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig", // PUBLIC test key only
+      key: "rzp_test_xxxxx",
       order_id: order.id,
       currency: "INR",
       name: "EngiBriefs",
-      description: "E-Book Purchase",
 
       handler: async function (response) {
-        // 3️⃣ Verify payment
-        const verifyRes = await fetch(
-          `${EDGE_BASE}/verify-payment`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              ebookId,
-              userId: user.id,
-              amount: price,
-            }),
-          }
-        );
+        const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            ebookId,
+            userId: user.id,
+            amount: price,
+          }),
+        });
 
         const result = await verifyRes.json();
         if (!verifyRes.ok || !result.success) {
@@ -215,7 +215,6 @@ async function buyNow(ebookId, price, pdfPath) {
         showToast("Payment successful", "success", 1500);
         await render();
 
-        // Auto download
         await downloadEbook(pdfPath, ebookId);
       },
     };
@@ -225,7 +224,8 @@ async function buyNow(ebookId, price, pdfPath) {
     console.error(err);
     showToast("Payment failed", "error", 2500);
   }
-}
+};
+
 
 
 
