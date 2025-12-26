@@ -309,15 +309,20 @@ async function downloadEbook(pdfPath, ebookId) {
       return;
     }
 
+    const session = (await supabase.auth.getSession()).data.session;
+
     const res = await fetch(`${EDGE_BASE}/download-ebook`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ebookId,
-        userId: user.id,
-        filePath: pdfPath,
-      }),
-    });
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          ebookId,
+          filePath: pdfPath,
+        }),
+      });
 
     const data = await res.json();
     if (!res.ok || !data.url) {

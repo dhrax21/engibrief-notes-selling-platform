@@ -7,19 +7,49 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { ebookId, userId, filePath } = await req.json();
+    /* =========================
+       AUTHENTICATE USER (JWT)
+    ========================= */
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get("Authorization")!,
+          },
+        },
+      }
     );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
+    /* =========================
+       REQUEST BODY
+    ========================= */
+
+    const { ebookId, filePath } = await req.json();
+
+    /* =========================
+       VERIFY PURCHASE
+    ========================= */
 
     const { data: purchase } = await supabase
       .from("purchases")
       .select("id")
       .eq("ebook_id", ebookId)
-      .eq("user_id", userId)
-      .eq("status", "SUCCESS")
+      .eq("user_id", user.id)
+      .eq("payment_status", "paid")
       .single();
 
     if (!purchase) {
@@ -29,21 +59,32 @@ Deno.serve(async (req) => {
       );
     }
 
+    /* =========================
+       LOG DOWNLOAD
+    ========================= */
+
     await supabase.from("download_logs").insert({
-      user_id: userId,
+      user_id: user.id,
       ebook_id: ebookId,
     });
 
-    const { data } = await supabase.storage
+    /* =========================
+       SIGNED URL
+    ========================= */
+
+    const { data, error } = await supabase.storage
       .from("ebooks")
       .createSignedUrl(filePath, 60);
 
-    return new Response(JSON.stringify({ url: data.signedUrl }), {
-      status: 200,
-      headers: corsHeaders,
-    });
+    if (error) throw error;
+
+    return new Response(
+      JSON.stringify({ url: data.signedUrl }),
+      { status: 200, headers: corsHeaders }
+    );
+
   } catch (err) {
-    console.error(err);
+    console.error("download-ebook error:", err);
     return new Response(
       JSON.stringify({ error: "Download failed" }),
       { status: 500, headers: corsHeaders }
