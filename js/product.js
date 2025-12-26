@@ -181,7 +181,7 @@ window.buyNow = async function (ebookId, price, filePath) {
     if (!res.ok) throw new Error("Order creation failed");
 
     const options = {
-      key: "rzp_test_xxxxx",
+      key: "rzp_test_Rt7n1yYlzd3Lig",
       order_id: order.id,
       currency: "INR",
       name: "EngiBriefs",
