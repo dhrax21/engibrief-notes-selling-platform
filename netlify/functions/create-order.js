@@ -1,5 +1,13 @@
 const Razorpay = require("razorpay");
 
+
+if (
+  !process.env.SUPABASE_URL ||
+  !process.env.SUPABASE_SERVICE_ROLE_KEY
+) {
+  throw new Error("Supabase environment variables missing");
+}
+
 exports.handler = async (event) => {
   try {
     const { amount } = JSON.parse(event.body || "{}");
