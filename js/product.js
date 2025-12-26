@@ -156,76 +156,7 @@ async function render() {
    BUY NOW
 ========================= */
 
-window.buyNow = async function (ebookId, price, filePath) {
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    if (!user) {
-      showToast("Please login first", "info", 2000);
-      window.location.href = "/pages/auth.html";
-      return;
-    }
-
-    // Create order
-    const res = await fetch("/.netlify/functions/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: price * 100 }),
-    });
-
-    const text = await res.text();
-    const order = text ? JSON.parse(text) : {};
-
-    if (!res.ok) throw new Error("Order creation failed");
-
-    const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig",
-      order_id: order.id,
-      currency: "INR",
-      name: "EngiBriefs",
-
-      handler: async function (response) {
-        const verifyRes = await fetch(
-          "/.netlify/functions/verify-payment",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              ebookId,
-              userId: user.id,
-              amount: price,
-            }),
-          }
-        );
-
-        const result = await verifyRes.json();
-        if (!verifyRes.ok || !result.success)
-          throw new Error("Verification failed");
-
-        purchasedSet.add(ebookId);
-        localStorage.setItem(
-          "purchasedEbooks",
-          JSON.stringify([...purchasedSet])
-        );
-
-        showToast("Payment successful", "success", 1500);
-        await render();
-
-        downloadEbook(filePath, ebookId);
-      },
-    };
-
-    new Razorpay(options).open();
-  } catch (err) {
-    console.error("Buy now error:", err);
-    showToast("Payment failed", "error", 2000);
-  }
-};
 
 
   
@@ -233,29 +164,7 @@ window.buyNow = async function (ebookId, price, filePath) {
 /* =========================
    DOWNLOAD (SECURE)
 ========================= */
-async function downloadEbook(filePath, ebookId) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  const res = await fetch("/.netlify/functions/download-ebook", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ebookId,
-      userId: user.id,
-      filePath,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    showToast("Download failed", "error", 2000);
-    return;
-  }
-
-  window.open(data.url, "_blank");
-}
 
 
 async function deleteEbook(ebookId) {
