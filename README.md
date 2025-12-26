@@ -5,7 +5,7 @@
 
 Engibrief is a full-stack web application that allows engineering students to **browse, purchase, and access high-quality academic e-books**, while providing administrators with secure tools to manage content.
 
-Built with **Firebase** and **vanilla web technologies**, Engibrief focuses on **clarity, performance, and real-world production practices**.
+Built with **Supabase** and **vanilla web technologies**, Engibrief focuses on **clarity, performance, and real-world production practices**.
 
 ---
 
@@ -33,10 +33,10 @@ Engibrief is designed to:
 
 ### 🧑‍💼 Admin Features
 
-* 🛡 Admin-only dashboard (via Firebase custom claims)
+* 🛡 Admin-only dashboard (via Supabase custom claims)
 * 📤 Upload e-books (cover image + PDF)
-* ☁️ Secure file storage with Firebase Storage
-* 🗂 Metadata management using Firestore
+* ☁️ Secure file storage with Supabase Storage
+* 🗂 Metadata management using Supabase DB
 * 🔐 Write access restricted at the database & storage level
 
 ---
@@ -51,14 +51,14 @@ Engibrief is designed to:
 
 ### Backend / Cloud
 
-* **Firebase Authentication** (v10 modular SDK)
-* **Cloud Firestore**
-* **Firebase Storage**
-* **Firebase Admin SDK** (for admin role assignment)
+* **Supabase Authentication** (v10 modular SDK)
+* **Cloud Supabase**
+* **Supabase Storage**
+* **Supabase Admin SDK** (for admin role assignment)
 
 ### Security
 
-* Firebase Security Rules (Firestore & Storage)
+* Supabase Security Rules (Supabase & Storage)
 * API key restrictions via Google Cloud Console
 * Custom claims for admin access
 * Referrer-based request validation
@@ -67,7 +67,7 @@ Engibrief is designed to:
 
 ## 🔐 Authentication Flow
 
-* Users authenticate using Firebase Auth
+* Users authenticate using Supabase Auth
 * Admins are identified via **custom claims**
 * Navbar dynamically updates based on auth state
 * Protected routes (`admin.html`, uploads) are enforced both:
@@ -81,8 +81,8 @@ Engibrief is designed to:
 
 ## 🛡 Security Highlights
 
-* 🔒 Admin actions protected by **Firebase custom claims**
-* 🔒 Firestore rules prevent unauthorized writes
+* 🔒 Admin actions protected by **Supabase custom claims**
+* 🔒 Supabase rules prevent unauthorized writes
 * 🔒 Storage rules restrict uploads to admins only
 * 🔒 API key protected using HTTP referrer restrictions
 * ❌ No secrets committed to GitHub
@@ -93,8 +93,8 @@ Engibrief is designed to:
 
 ### Requirements
 
-* Node.js (for Firebase CLI)
-* Firebase project
+* Node.js (for Supabase CLI)
+* Supabase project
 
 ### Run locally
 
@@ -119,8 +119,8 @@ http://localhost:5500
 * ✅ Admin role enforcement complete
 * ✅ Public e-book listing complete
 * ✅ Landing page redesigned
-* ⏳ Payment integration (planned)
-* ⏳ Protected downloads (planned)
+* ✅ Payment integration (planned)
+* ✅ Protected downloads (planned)
 
 ---
 
@@ -130,7 +130,7 @@ http://localhost:5500
 * **No unnecessary frameworks**
 * **Production-first decisions**
 * Clean separation of concerns
-* Firebase used as a real backend, not a shortcut
+* Supabase used as a real backend, not a shortcut
 
 ---
 
@@ -142,7 +142,7 @@ Contributions, reviews, and suggestions are welcome.
 If you are interested in:
 
 * Ed-tech
-* Firebase-based architectures
+* Supabase-based architectures
 * Clean frontend engineering
 
 Feel free to reach out.
