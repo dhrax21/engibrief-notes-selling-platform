@@ -7,51 +7,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    /* =========================
-       AUTHENTICATE USER (JWT)
-    ========================= */
-
-    const authClient = createClient(
+    const auth = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       {
         global: {
-          headers: {
-            Authorization: req.headers.get("Authorization")!,
-          },
+          headers: { Authorization: req.headers.get("Authorization")! },
         },
       }
     );
 
-    const { data: { user } } = await authClient.auth.getUser();
-
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: corsHeaders }
-      );
-    }
+    const { data: { user } } = await auth.auth.getUser();
+    if (!user) return new Response("Unauthorized", { status: 401 });
 
     const { ebookId } = await req.json();
-
-    /* =========================
-       SERVER AUTHORITY CLIENT
-    ========================= */
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    /* =========================
-       VERIFY PURCHASE
-    ========================= */
-
     const { data: purchase } = await admin
       .from("purchases")
       .select("id")
-      .eq("ebook_id", ebookId)
       .eq("user_id", user.id)
+      .eq("ebook_id", ebookId)
       .eq("payment_status", "paid")
       .maybeSingle();
 
@@ -62,46 +42,23 @@ Deno.serve(async (req) => {
       );
     }
 
-    /* =========================
-       GET FILE PATH (SERVER)
-    ========================= */
-
     const { data: ebook } = await admin
       .from("ebooks")
       .select("pdf_path")
       .eq("id", ebookId)
       .single();
 
-    if (!ebook?.pdf_path) {
-      throw new Error("File not configured");
-    }
-
-    /* =========================
-       LOG DOWNLOAD
-    ========================= */
-
-    await admin.from("download_logs").insert({
-      user_id: user.id,
-      ebook_id: ebookId,
-    });
-
-    /* =========================
-       SIGNED URL
-    ========================= */
-
-    const { data, error } = await admin.storage
+    const { data } = await admin.storage
       .from("ebooks")
       .createSignedUrl(ebook.pdf_path, 60);
 
-    if (error) throw error;
-
-    return new Response(
-      JSON.stringify({ url: data.signedUrl }),
-      { status: 200, headers: corsHeaders }
-    );
+    return new Response(JSON.stringify({ url: data.signedUrl }), {
+      status: 200,
+      headers: corsHeaders,
+    });
 
   } catch (err) {
-    console.error("download-ebook error:", err);
+    console.error(err);
     return new Response(
       JSON.stringify({ error: "Download failed" }),
       { status: 500, headers: corsHeaders }

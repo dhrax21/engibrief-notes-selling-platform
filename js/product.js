@@ -172,9 +172,6 @@ async function render() {
 let isBuying = false;
 
 window.buyNow = async function (ebookId, price) {
-  if (isBuying) return;
-  isBuying = true;
-
   try {
     if (!user) {
       showToast("Please login to continue", "info", 2000);
@@ -196,69 +193,68 @@ window.buyNow = async function (ebookId, price) {
       },
       body: JSON.stringify({
         ebookId,
-        amount: price * 100, // paise
+        amount: price * 100,
       }),
     });
 
-    if (!orderRes.ok) throw new Error("Order creation failed");
+    if (!orderRes.ok) throw new Error("Create order failed");
     const order = await orderRes.json();
 
     /* ================= RAZORPAY ================= */
 
     const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig", 
+      key: "rzp_test_Rt7n1yYlzd3Lig", // replace later
       order_id: order.id,
       amount: price * 100,
       currency: "INR",
       name: "EngiBriefs",
-      description: "E-Book Purchase",
 
-    handler: async function (response) {
-  try {
-    const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+      handler: async function (response) {
+        try {
+          /* ================= VERIFY ================= */
+
+          const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          if (!verifyRes.ok) throw new Error("Verification failed");
+
+          const result = await verifyRes.json();
+          if (!result.success) throw new Error("Payment not verified");
+
+          /* ================= UI STATE UPDATE ================= */
+
+          purchasedSet.add(ebookId);
+          localStorage.setItem(
+            "purchasedEbooks",
+            JSON.stringify([...purchasedSet])
+          );
+
+          await render(); // 🔑 THIS updates Buy → Download
+
+          showToast("Payment successful", "success", 1500);
+
+          /* ================= DOWNLOAD ================= */
+
+          await downloadEbook(ebookId);
+
+        } catch (err) {
+          console.error(err);
+          showToast("Payment failed", "error", 2500);
+        }
       },
-      body: JSON.stringify({
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-      }),
-    });
-
-    if (!verifyRes.ok) throw new Error("Verification failed");
-
-    const result = await verifyRes.json();
-    if (!result.success) throw new Error("Payment not verified");
-
-    // ✅ UPDATE FRONTEND STATE
-    purchasedSet.add(ebookId);
-    localStorage.setItem(
-      "purchasedEbooks",
-      JSON.stringify([...purchasedSet])
-    );
-
-    showToast("Payment successful", "success", 1500);
-
-    // ✅ FORCE UI UPDATE
-    await render();
-
-    // ✅ DOWNLOAD (with retry if you kept it)
-    await downloadWithRetry(ebookId);
-
-  } catch (err) {
-    console.error(err);
-    showToast("Payment verification failed", "error", 2500);
-  } finally {
-    isBuying = false;
-  }
-},
 
       modal: {
         ondismiss() {
-          isBuying = false;
           showToast("Payment cancelled", "info", 2000);
         },
       },
@@ -269,9 +265,9 @@ window.buyNow = async function (ebookId, price) {
   } catch (err) {
     console.error(err);
     showToast("Payment failed", "error", 2500);
-    isBuying = false;
   }
 };
+
 
 
 async function downloadWithRetry(ebookId, retries = 5, delay = 400) {
