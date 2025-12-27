@@ -18,7 +18,12 @@ Deno.serve(async (req) => {
     );
 
     const { data: { user } } = await auth.auth.getUser();
-    if (!user) return new Response("Unauthorized", { status: 401 });
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
 
     const { ebookId } = await req.json();
 
@@ -26,6 +31,10 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    /* =========================
+       VERIFY PURCHASE
+    ========================= */
 
     const { data: purchase } = await admin
       .from("purchases")
@@ -42,6 +51,25 @@ Deno.serve(async (req) => {
       );
     }
 
+    /* =========================
+       LOG DOWNLOAD  ✅ THIS WAS MISSING
+    ========================= */
+
+    const { error: logError } = await admin
+      .from("download_logs")
+      .insert({
+        user_id: user.id,
+        ebook_id: ebookId,
+      });
+
+    if (logError) {
+      console.error("Download log insert failed:", logError);
+    }
+
+    /* =========================
+       GET FILE + SIGNED URL
+    ========================= */
+
     const { data: ebook } = await admin
       .from("ebooks")
       .select("pdf_path")
@@ -52,13 +80,13 @@ Deno.serve(async (req) => {
       .from("ebooks")
       .createSignedUrl(ebook.pdf_path, 60);
 
-    return new Response(JSON.stringify({ url: data.signedUrl }), {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(
+      JSON.stringify({ url: data.signedUrl }),
+      { status: 200, headers: corsHeaders }
+    );
 
   } catch (err) {
-    console.error(err);
+    console.error("download-ebook error:", err);
     return new Response(
       JSON.stringify({ error: "Download failed" }),
       { status: 500, headers: corsHeaders }
