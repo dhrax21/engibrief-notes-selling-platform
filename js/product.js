@@ -313,14 +313,15 @@ async function downloadEbook(ebookId) {
 
 
 // -----------------------//
-async function deleteEbook(ebookId) {
+async function downloadEbook(ebookId) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
+
     if (!session?.access_token) {
       throw new Error("Not authenticated");
     }
 
-    const res = await fetch(`${EDGE_BASE}/delete-ebook`, {
+    const res = await fetch(`${EDGE_BASE}/download-ebook`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -331,15 +332,24 @@ async function deleteEbook(ebookId) {
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(text || "Delete failed");
+
+      // Ignore expected race-condition 403
+      if (res.status === 403 && text.includes("Not purchased")) {
+        throw new Error("RETRY");
+      }
+
+      throw new Error(text);
     }
 
-    showToast("E-book deleted", "success", 2000);
-    await render();
+    const data = await res.json();
+    window.open(data.url, "_blank", "noopener,noreferrer");
 
   } catch (err) {
-    console.error(err);
-    showToast("Delete failed", "error", 2500);
+    if (err.message !== "RETRY") {
+      console.error("Download error:", err);
+      showToast("Download failed", "error", 2500);
+    }
+    throw err;
   }
 }
 
