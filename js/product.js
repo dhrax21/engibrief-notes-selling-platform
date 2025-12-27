@@ -170,30 +170,27 @@ window.buyNow = async function (ebookId, price, pdfPath) {
   isBuying = true;
 
   try {
-    /* =========================
-       LOGIN CHECK
-    ========================= */
-
     if (!user) {
       showToast("Please login to continue", "info", 1800);
-      setTimeout(() => {
-        window.location.href = "/pages/auth.html";
-      }, 1600);
+      setTimeout(() => (window.location.href = "/pages/auth.html"), 1600);
       return;
     }
 
-    /* =========================
-       1️⃣ CREATE ORDER
-    ========================= */
+    const { data: { session } } = await supabase.auth.getSession();
+    const accessToken = session?.access_token;
+    if (!accessToken) throw new Error("No session token");
 
+    /* 1️⃣ CREATE ORDER */
     const res = await fetch(`${EDGE_BASE}/create-order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ amount: price * 100 }),
+      body: JSON.stringify({
+        ebookId,
+        amount: price * 100, // paise
+      }),
     });
 
     if (!res.ok) {
@@ -203,10 +200,7 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
     const order = await res.json();
 
-    /* =========================
-       2️⃣ RAZORPAY CHECKOUT
-    ========================= */
-
+    /* 2️⃣ RAZORPAY CHECKOUT */
     const options = {
       key: "rzp_test_Rt7n1yYlzd3Lig",
       order_id: order.id,
@@ -217,58 +211,31 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
       handler: async function (response) {
         try {
-          /* =========================
-             3️⃣ VERIFY PAYMENT
-          ========================= */
-
+          /* 3️⃣ VERIFY PAYMENT (sanity check only) */
           const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "apikey": SUPABASE_ANON_KEY,
-              "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+              Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              ebookId,
-              userId: user.id,
-              amount: price,
             }),
           });
 
-          if (!verifyRes.ok) {
-            const errText = await verifyRes.text();
-            throw new Error(`Verification failed: ${errText}`);
-          }
+          if (!verifyRes.ok) throw new Error("Verification failed");
 
-          const result = await verifyRes.json();
-          if (!result.success) {
-            throw new Error("Payment verification failed");
-          }
+          showToast("Payment successful. Verifying…", "success", 1500);
 
-          /* =========================
-             4️⃣ UPDATE UI STATE
-          ========================= */
-
-          purchasedSet.add(ebookId);
-          localStorage.setItem(
-            "purchasedEbooks",
-            JSON.stringify([...purchasedSet])
-          );
-
-          showToast("Payment successful", "success", 1500);
+          // IMPORTANT: wait for webhook to mark DB as paid
           await render();
-
-          /* =========================
-             5️⃣ DOWNLOAD
-          ========================= */
 
           await downloadEbook(pdfPath, ebookId);
 
         } catch (err) {
-          console.error("Verification error:", err);
+          console.error(err);
           showToast("Payment verification failed", "error", 2500);
         } finally {
           isBuying = false;
@@ -276,7 +243,7 @@ window.buyNow = async function (ebookId, price, pdfPath) {
       },
 
       modal: {
-        ondismiss: function () {
+        ondismiss() {
           isBuying = false;
           showToast("Payment cancelled", "info", 2000);
         },
