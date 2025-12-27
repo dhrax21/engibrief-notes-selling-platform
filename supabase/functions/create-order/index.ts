@@ -44,11 +44,12 @@ Deno.serve(async (req) => {
       key_secret: Deno.env.get("RAZORPAY_KEY_SECRET")!,
     });
 
-    const order = await razorpay.orders.create({
+      const order = await razorpay.orders.create({
       amount,
       currency: "INR",
-      receipt: `ebook_${ebookId}_${user.id}`,
+      receipt: `eb_${ebookId.slice(0, 6)}_${user.id.slice(0, 6)}`,
     });
+
 
     // store pending purchase
     const admin = createClient(
