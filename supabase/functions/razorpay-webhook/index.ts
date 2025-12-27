@@ -27,7 +27,10 @@ export default async (req: Request) => {
   if (payload.event === "payment.captured") {
     const payment = payload.payload.payment.entity;
 
-      await fetch(
+    console.log("Webhook received:", payload.event);
+    console.log("Order ID:", payment.order_id);
+
+    await fetch(
       `${Deno.env.get("SUPABASE_URL")}/rest/v1/purchases?order_id=eq.${payment.order_id}`,
       {
         method: "PATCH",
@@ -43,9 +46,6 @@ export default async (req: Request) => {
       }
     );
   }
-  console.log("Webhook received:", payload.event);
-  console.log("Order ID:", payment.order_id);
-
 
   return new Response("OK", { status: 200 });
 };
