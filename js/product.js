@@ -280,38 +280,6 @@ window.buyNow = async function (ebookId, price) {
    DOWNLOAD (SECURE)
 ========================= */
 
-async function downloadEbook(ebookId) {
-  try {
-    const res = await fetch(`${EDGE_BASE}/download-ebook`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({ ebookId }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-  
-      if (res.status === 403 && text.includes("Not purchased")) {
-        throw new Error("RETRY");
-      }
-      throw new Error(text);
-    }
-
-    const data = await res.json();
-    window.open(data.url, "_blank");
-  } catch (err) {
-    if (err.message !== "RETRY") {
-      console.error(err);
-    }
-    throw err;
-  }
-}
-
-
-
 // -----------------------//
 async function downloadEbook(ebookId) {
   try {
