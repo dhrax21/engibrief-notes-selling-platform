@@ -171,27 +171,28 @@ async function render() {
 
 let isBuying = false;
 
-window.buyNow = async function (ebookId, price, pdfPath) {
+window.buyNow = async function (ebookId, price) {
   if (isBuying) return;
   isBuying = true;
 
   try {
     if (!user) {
-      showToast("Please login to continue", "info", 1800);
-      setTimeout(() => (window.location.href = "/pages/auth.html"), 1600);
+      showToast("Please login to continue", "info", 2000);
+      window.location.href = "/pages/auth.html";
       return;
     }
 
     const { data: { session } } = await supabase.auth.getSession();
-    const accessToken = session?.access_token;
-    if (!accessToken) throw new Error("No session token");
+    const token = session?.access_token;
+    if (!token) throw new Error("Not authenticated");
 
-    /* 1️⃣ CREATE ORDER */
-    const res = await fetch(`${EDGE_BASE}/create-order`, {
+    /* ================= CREATE ORDER ================= */
+
+    const orderRes = await fetch(`${EDGE_BASE}/create-order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         ebookId,
@@ -199,16 +200,13 @@ window.buyNow = async function (ebookId, price, pdfPath) {
       }),
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Order creation failed: ${errText}`);
-    }
+    if (!orderRes.ok) throw new Error("Order creation failed");
+    const order = await orderRes.json();
 
-    const order = await res.json();
+    /* ================= RAZORPAY ================= */
 
-    /* 2️⃣ RAZORPAY CHECKOUT */
     const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig",
+      key: "rzp_test_Rt7n1yYlzd3Lig", 
       order_id: order.id,
       amount: price * 100,
       currency: "INR",
@@ -217,12 +215,13 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
       handler: async function (response) {
         try {
-          /* 3️⃣ VERIFY PAYMENT (sanity check only) */
+          /* ================= VERIFY PAYMENT ================= */
+
           const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               razorpay_order_id: response.razorpay_order_id,
@@ -232,12 +231,14 @@ window.buyNow = async function (ebookId, price, pdfPath) {
           });
 
           if (!verifyRes.ok) throw new Error("Verification failed");
+          const result = await verifyRes.json();
+          if (!result.success) throw new Error("Payment not verified");
 
-          showToast("Payment successful. Verifying purchase…", "info", 2000);
-        
+          showToast("Payment successful", "success", 1500);
 
-          await render();
-          await downloadEbook(pdfPath, ebookId);
+          /* ================= DOWNLOAD ================= */
+
+          await downloadEbook(ebookId);
 
         } catch (err) {
           console.error(err);
@@ -258,11 +259,12 @@ window.buyNow = async function (ebookId, price, pdfPath) {
     new Razorpay(options).open();
 
   } catch (err) {
-    console.error("Buy now error:", err);
+    console.error(err);
     showToast("Payment failed", "error", 2500);
     isBuying = false;
   }
 };
+
 
 
 

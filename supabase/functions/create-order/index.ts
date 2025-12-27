@@ -17,53 +17,74 @@ Deno.serve(async (req) => {
       );
     }
 
-    // user auth
+    // Auth user
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       {
         global: {
           headers: {
-            Authorization: req.headers.get("Authorization")!
-          }
-        }
+            Authorization: req.headers.get("Authorization")!,
+          },
+        },
       }
     );
 
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return new Response("Unauthorized", { status: 401 });
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: corsHeaders }
+      );
     }
 
-    // razorpay
-    const razorpay = new Razorpay({
-      key_id: Deno.env.get("RAZORPAY_KEY_ID")!,
-      key_secret: Deno.env.get("RAZORPAY_KEY_SECRET")!,
-    });
-
-      const order = await razorpay.orders.create({
-      amount,
-      currency: "INR",
-      receipt: `eb_${ebookId.slice(0, 6)}_${user.id.slice(0, 6)}`,
-    });
-
-
-    // store pending purchase
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    await admin.from("purchases").insert({
-      user_id: user.id,
-      ebook_id: ebookId,
-      amount,
-      order_id: order.id,
-      payment_status: "pending",
+    // Prevent double purchase
+    const { data: existing } = await admin
+      .from("purchases")
+      .select("payment_status")
+      .eq("user_id", user.id)
+      .eq("ebook_id", ebookId)
+      .maybeSingle();
+
+    if (existing?.payment_status === "paid") {
+      return new Response(
+        JSON.stringify({ error: "Already purchased" }),
+        { status: 409, headers: corsHeaders }
+      );
+    }
+
+    // Razorpay order
+    const razorpay = new Razorpay({
+      key_id: Deno.env.get("RAZORPAY_KEY_ID")!,
+      key_secret: Deno.env.get("RAZORPAY_KEY_SECRET")!,
     });
+
+    const order = await razorpay.orders.create({
+      amount,
+      currency: "INR",
+      receipt: `eb_${ebookId.slice(0, 6)}_${user.id.slice(0, 6)}`,
+    });
+
+    console.log("Order created:", order.id);
+
+    // Insert / update pending purchase
+    await admin
+      .from("purchases")
+      .upsert(
+        {
+          user_id: user.id,
+          ebook_id: ebookId,
+          amount,
+          order_id: order.id,
+          payment_status: "pending",
+        },
+        { onConflict: "user_id,ebook_id" }
+      );
 
     return new Response(JSON.stringify(order), {
       status: 200,
