@@ -276,27 +276,35 @@ async function downloadEbook(pdfPath, ebookId) {
       return;
     }
 
-    const session = (await supabase.auth.getSession()).data.session;
-
-    const res = await fetch(`${EDGE_BASE}/download-ebook`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          ebookId,
-          filePath: pdfPath,
-        }),
-      });
-
-    const data = await res.json();
-    if (!res.ok || !data.url) {
-      throw new Error("Download failed");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error("Not authenticated");
     }
 
-    window.open(data.url, "_blank");
+    const res = await fetch(`${EDGE_BASE}/download-ebook`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        ebookId, 
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Download failed");
+    }
+
+    const data = await res.json();
+    if (!data.url) {
+      throw new Error("Invalid download response");
+    }
+
+    window.open(data.url, "_blank", "noopener,noreferrer");
+
+
   } catch (err) {
     console.error(err);
     showToast("Download failed", "error", 2500);
@@ -307,17 +315,26 @@ async function downloadEbook(pdfPath, ebookId) {
 // -----------------------//
 async function deleteEbook(ebookId) {
   try {
-    const { error } = await supabase
-      .from("ebooks")
-      .update({ is_active: false })
-      .eq("id", ebookId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error("Not authenticated");
+    }
 
-    if (error) throw error;
+    const res = await fetch(`${EDGE_BASE}/delete-ebook`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ ebookId }),
+    });
 
-    allEbooks = allEbooks.filter(e => e.id !== ebookId);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Delete failed");
+    }
 
     showToast("E-book deleted", "success", 2000);
-
     await render();
 
   } catch (err) {
@@ -325,6 +342,7 @@ async function deleteEbook(ebookId) {
     showToast("Delete failed", "error", 2500);
   }
 }
+
 
 
 
