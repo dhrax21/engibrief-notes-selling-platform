@@ -145,13 +145,14 @@ async function render() {
     }
 
     // BUY / DOWNLOAD
-    card.querySelector(".ebook-btn").addEventListener("click", async () => {
+   card.querySelector(".ebook-btn").addEventListener("click", async () => {
       if (purchasedSet.has(ebook.id)) {
-        await downloadEbook(ebook.pdf_path, ebook.id);
+        await downloadWithRetry(ebook.id);   
       } else {
-        await buyNow(ebook.id, ebook.price, ebook.pdf_path);
+        await buyNow(ebook.id, ebook.price);
       }
-    });
+});
+
 
     grid.appendChild(card);
   }
