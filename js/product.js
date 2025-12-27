@@ -245,7 +245,8 @@ window.buyNow = async function (ebookId, price) {
 
           /* ================= DOWNLOAD ================= */
 
-          await downloadEbook(ebookId);
+          await downloadWithRetry(ebookId);
+
 
         } catch (err) {
           console.error(err);
@@ -268,11 +269,25 @@ window.buyNow = async function (ebookId, price) {
   }
 };
 
+// downloadWithRetry
 
 
 
 
-
+async function downloadWithRetry(ebookId, retries = 5, delay = 400) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await downloadEbook(ebookId);
+      return; // success
+    } catch (err) {
+      if (err.message === "RETRY" && i < retries - 1) {
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
 
   
 
