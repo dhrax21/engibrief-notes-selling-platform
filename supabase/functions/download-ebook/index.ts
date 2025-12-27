@@ -11,9 +11,9 @@ Deno.serve(async (req) => {
        AUTHENTICATE USER (JWT)
     ========================= */
 
-    const supabase = createClient(
+    const authClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
       {
         global: {
           headers: {
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
 
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await authClient.auth.getUser();
 
     if (!user) {
       return new Response(
@@ -34,23 +34,28 @@ Deno.serve(async (req) => {
       );
     }
 
+    const { ebookId } = await req.json();
+
     /* =========================
-       REQUEST BODY
+       SERVER AUTHORITY CLIENT
     ========================= */
 
-    const { ebookId, filePath } = await req.json();
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
     /* =========================
        VERIFY PURCHASE
     ========================= */
 
-    const { data: purchase } = await supabase
+    const { data: purchase } = await admin
       .from("purchases")
       .select("id")
       .eq("ebook_id", ebookId)
       .eq("user_id", user.id)
       .eq("payment_status", "paid")
-      .single();
+      .maybeSingle();
 
     if (!purchase) {
       return new Response(
@@ -60,10 +65,24 @@ Deno.serve(async (req) => {
     }
 
     /* =========================
+       GET FILE PATH (SERVER)
+    ========================= */
+
+    const { data: ebook } = await admin
+      .from("ebooks")
+      .select("file_path")
+      .eq("id", ebookId)
+      .single();
+
+    if (!ebook?.file_path) {
+      throw new Error("File not found");
+    }
+
+    /* =========================
        LOG DOWNLOAD
     ========================= */
 
-    await supabase.from("download_logs").insert({
+    await admin.from("download_logs").insert({
       user_id: user.id,
       ebook_id: ebookId,
     });
@@ -72,9 +91,9 @@ Deno.serve(async (req) => {
        SIGNED URL
     ========================= */
 
-    const { data, error } = await supabase.storage
+    const { data, error } = await admin.storage
       .from("ebooks")
-      .createSignedUrl(filePath, 60);
+      .createSignedUrl(ebook.file_path, 60);
 
     if (error) throw error;
 

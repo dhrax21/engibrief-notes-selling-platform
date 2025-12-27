@@ -161,33 +161,7 @@ async function render() {
 
 
 
-async function waitForPurchaseToComplete(ebookId, timeoutMs = 12000) {
-  const start = Date.now();
 
-  while (Date.now() - start < timeoutMs) {
-    const { data, error } = await supabase
-      .from("purchases")
-      .select("payment_status")
-      .eq("ebook_id", ebookId)
-      .single();
-
-    if (error) {
-      console.error("Polling error:", error);
-    }
-
-    if (data?.payment_status === "paid") {
-      return true;
-    }
-
-    if (data?.payment_status === "failed") {
-      throw new Error("Payment failed");
-    }
-
-    await new Promise((r) => setTimeout(r, 1000));
-  }
-
-  throw new Error("Payment verification is taking longer than expected");
-}
 
 
 
@@ -262,10 +236,7 @@ window.buyNow = async function (ebookId, price, pdfPath) {
           showToast("Payment successful. Verifying purchase…", "info", 2000);
         
 
-          await waitForPurchaseToComplete(ebookId);
-
           await render();
-
           await downloadEbook(pdfPath, ebookId);
 
         } catch (err) {
