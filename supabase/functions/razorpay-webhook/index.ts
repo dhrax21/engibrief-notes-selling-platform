@@ -27,23 +27,25 @@ export default async (req: Request) => {
   if (payload.event === "payment.captured") {
     const payment = payload.payload.payment.entity;
 
-    await fetch(
+      await fetch(
       `${Deno.env.get("SUPABASE_URL")}/rest/v1/purchases?order_id=eq.${payment.order_id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-          apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+          apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
         },
         body: JSON.stringify({
           payment_status: "paid",
           payment_id: payment.id,
-          purchased_at: new Date().toISOString()
-        })
+        }),
       }
     );
   }
+  console.log("Webhook received:", payload.event);
+  console.log("Order ID:", payment.order_id);
+
 
   return new Response("OK", { status: 200 });
 };
