@@ -213,40 +213,48 @@ window.buyNow = async function (ebookId, price) {
       name: "EngiBriefs",
       description: "E-Book Purchase",
 
-      handler: async function (response) {
-        try {
-          /* ================= VERIFY PAYMENT ================= */
-
-          const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }),
-          });
-
-          if (!verifyRes.ok) throw new Error("Verification failed");
-          const result = await verifyRes.json();
-          if (!result.success) throw new Error("Payment not verified");
-
-          showToast("Payment successful", "success", 1500);
-
-          /* ================= DOWNLOAD ================= */
-
-          await downloadEbook(ebookId);
-
-        } catch (err) {
-          console.error(err);
-          showToast("Payment verification failed", "error", 2500);
-        } finally {
-          isBuying = false;
-        }
+    handler: async function (response) {
+  try {
+    const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+      }),
+    });
+
+    if (!verifyRes.ok) throw new Error("Verification failed");
+
+    const result = await verifyRes.json();
+    if (!result.success) throw new Error("Payment not verified");
+
+    // ✅ UPDATE FRONTEND STATE
+    purchasedSet.add(ebookId);
+    localStorage.setItem(
+      "purchasedEbooks",
+      JSON.stringify([...purchasedSet])
+    );
+
+    showToast("Payment successful", "success", 1500);
+
+    // ✅ FORCE UI UPDATE
+    await render();
+
+    // ✅ DOWNLOAD (with retry if you kept it)
+    await downloadWithRetry(ebookId);
+
+  } catch (err) {
+    console.error(err);
+    showToast("Payment verification failed", "error", 2500);
+  } finally {
+    isBuying = false;
+  }
+},
 
       modal: {
         ondismiss() {
@@ -264,6 +272,22 @@ window.buyNow = async function (ebookId, price) {
     isBuying = false;
   }
 };
+
+
+async function downloadWithRetry(ebookId, retries = 5, delay = 400) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await downloadEbook(ebookId);
+      return; // success
+    } catch (err) {
+      if (err.message.includes("Not purchased") && i < retries - 1) {
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
 
 
 
