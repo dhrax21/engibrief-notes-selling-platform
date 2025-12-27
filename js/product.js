@@ -270,22 +270,6 @@ window.buyNow = async function (ebookId, price) {
 
 
 
-async function downloadWithRetry(ebookId, retries = 5, delay = 400) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      await downloadEbook(ebookId);
-      return; // success
-    } catch (err) {
-      if (err.message.includes("Not purchased") && i < retries - 1) {
-        await new Promise(r => setTimeout(r, delay));
-        continue;
-      }
-      throw err;
-    }
-  }
-}
-
-
 
 
 
@@ -296,47 +280,36 @@ async function downloadWithRetry(ebookId, retries = 5, delay = 400) {
    DOWNLOAD (SECURE)
 ========================= */
 
-async function downloadEbook(pdfPath, ebookId) {
+async function downloadEbook(ebookId) {
   try {
-    if (!user) {
-      showToast("Please login first", "info", 2000);
-      return;
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) {
-      throw new Error("Not authenticated");
-    }
-
     const res = await fetch(`${EDGE_BASE}/download-ebook`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({
-        ebookId, 
-      }),
+      body: JSON.stringify({ ebookId }),
     });
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(text || "Download failed");
+  
+      if (res.status === 403 && text.includes("Not purchased")) {
+        throw new Error("RETRY");
+      }
+      throw new Error(text);
     }
 
     const data = await res.json();
-    if (!data.url) {
-      throw new Error("Invalid download response");
-    }
-
-    window.open(data.url, "_blank", "noopener,noreferrer");
-
-
+    window.open(data.url, "_blank");
   } catch (err) {
-    console.error(err);
-    showToast("Download failed", "error", 2500);
+    if (err.message !== "RETRY") {
+      console.error(err);
+    }
+    throw err;
   }
 }
+
 
 
 // -----------------------//
