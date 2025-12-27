@@ -157,6 +157,38 @@ async function render() {
   }
 }
 
+//  Without this Dont Open any PDF
+
+
+
+async function waitForPurchaseToComplete(ebookId, timeoutMs = 12000) {
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    const { data, error } = await supabase
+      .from("purchases")
+      .select("payment_status")
+      .eq("ebook_id", ebookId)
+      .single();
+
+    if (error) {
+      console.error("Polling error:", error);
+    }
+
+    if (data?.payment_status === "paid") {
+      return true;
+    }
+
+    if (data?.payment_status === "failed") {
+      throw new Error("Payment failed");
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error("Payment verification is taking longer than expected");
+}
+
 
 
 /* =========================
@@ -227,9 +259,11 @@ window.buyNow = async function (ebookId, price, pdfPath) {
 
           if (!verifyRes.ok) throw new Error("Verification failed");
 
-          showToast("Payment successful. Verifying…", "success", 1500);
+          showToast("Payment successful. Verifying purchase…", "info", 2000);
+        
 
-          // IMPORTANT: wait for webhook to mark DB as paid
+          await waitForPurchaseToComplete(ebookId);
+
           await render();
 
           await downloadEbook(pdfPath, ebookId);
