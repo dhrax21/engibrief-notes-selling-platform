@@ -23,9 +23,7 @@ Deno.serve(async (req) => {
       }
     );
 
-    const {
-      data: { user },
-    } = await authClient.auth.getUser();
+    const { data: { user } } = await authClient.auth.getUser();
 
     if (!user) {
       return new Response(
@@ -70,12 +68,12 @@ Deno.serve(async (req) => {
 
     const { data: ebook } = await admin
       .from("ebooks")
-      .select("file_path")
+      .select("pdf_path")
       .eq("id", ebookId)
       .single();
 
-    if (!ebook?.file_path) {
-      throw new Error("File not found");
+    if (!ebook?.pdf_path) {
+      throw new Error("File not configured");
     }
 
     /* =========================
@@ -93,7 +91,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await admin.storage
       .from("ebooks")
-      .createSignedUrl(ebook.file_path, 60);
+      .createSignedUrl(ebook.pdf_path, 60);
 
     if (error) throw error;
 
