@@ -8,57 +8,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { amount, ebookId } = await req.json();
+    const { ebookId, amount } = await req.json();
 
-    if (!amount || amount < 100 || !ebookId) {
-      return new Response(
-        JSON.stringify({ error: "Invalid input" }),
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
-    // Auth user
-    const supabase = createClient(
+    const auth = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       {
         global: {
-          headers: {
-            Authorization: req.headers.get("Authorization")!,
-          },
+          headers: { Authorization: req.headers.get("Authorization")! },
         },
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await auth.auth.getUser();
     if (!user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: corsHeaders }
-      );
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    const admin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    // Prevent double purchase
-    const { data: existing } = await admin
-      .from("purchases")
-      .select("payment_status")
-      .eq("user_id", user.id)
-      .eq("ebook_id", ebookId)
-      .maybeSingle();
-
-    if (existing?.payment_status === "paid") {
-      return new Response(
-        JSON.stringify({ error: "Already purchased" }),
-        { status: 409, headers: corsHeaders }
-      );
-    }
-
-    // Razorpay order
     const razorpay = new Razorpay({
       key_id: Deno.env.get("RAZORPAY_KEY_ID")!,
       key_secret: Deno.env.get("RAZORPAY_KEY_SECRET")!,
@@ -67,29 +33,25 @@ Deno.serve(async (req) => {
     const order = await razorpay.orders.create({
       amount,
       currency: "INR",
-      receipt: `eb_${ebookId.slice(0, 6)}_${user.id.slice(0, 6)}`,
     });
 
-    console.log("Order created:", order.id);
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    // Insert / update pending purchase
-    await admin
-      .from("purchases")
-      .upsert(
-        {
-          user_id: user.id,
-          ebook_id: ebookId,
-          amount,
-          order_id: order.id,
-          payment_status: "pending",
-        },
-        { onConflict: "user_id,ebook_id" }
-      );
+    await admin.from("purchases").insert({
+      user_id: user.id,
+      ebook_id: ebookId,
+      order_id: order.id,
+      payment_status: "pending",
+    });
 
     return new Response(JSON.stringify(order), {
       status: 200,
       headers: corsHeaders,
     });
+
   } catch (err) {
     console.error(err);
     return new Response(

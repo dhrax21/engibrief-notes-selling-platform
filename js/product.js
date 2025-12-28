@@ -140,6 +140,8 @@ async function render() {
           .closest(".ebook-card")
           ?.dataset.id;
         if (!ebookId) return;
+        const ok = confirm("Are you sure you want to delete this ebook?");
+        if (!ok) return;
         await deleteEbook(ebookId);
       });
     }
@@ -159,12 +161,6 @@ async function render() {
 }
 
 //  Without this Dont Open any PDF
-
-
-
-
-
-
 
 /* =========================
    BUY NOW
@@ -269,6 +265,39 @@ window.buyNow = async function (ebookId, price) {
     showToast("Payment failed", "error", 2500);
   }
 };
+
+
+// Delete Ebook Logic 
+async function deleteEbook(ebookId) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Not authenticated");
+
+    const res = await fetch(`${EDGE_BASE}/delete-ebook`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ ebookId }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+
+    showToast("E-book deleted", "success", 2000);
+    await render();
+
+  } catch (err) {
+    console.error(err);
+    showToast("Delete failed", "error", 2500);
+  }
+}
+
+
+
 
 // downloadWithRetry
 
