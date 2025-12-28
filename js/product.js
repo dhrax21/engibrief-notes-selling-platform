@@ -143,6 +143,7 @@ async function render() {
         const ok = confirm("Are you sure you want to delete this ebook?");
         if (!ok) return;
         await deleteEbook(ebookId);
+        card.remove();
       });
     }
 
