@@ -7,6 +7,13 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="/css/styles.css">
+  <link
+  rel="preload"
+  as="image"
+  href="/assets/hero-books.avif"
+  type="image/avif"
+>
+
 </head>
 
 <body class="global-bg">
@@ -50,8 +57,19 @@
   </div>
 
   <div class="hero-image">
-    <img src="/assets/hero-books.png" alt="Engineering notes">
-  </div>
+  <picture>
+    <source srcset="/assets/hero-books.avif" type="image/avif">
+    <source srcset="/assets/hero-books.webp" type="image/webp">
+    <img
+      src="/assets/hero-books.png"
+      alt="Engineering notes"
+      width="1200"
+      height="600"
+      fetchpriority="high"
+    >
+  </picture>
+</div>
+
 </section>
 
 <!-- ================= TRUST ================= -->

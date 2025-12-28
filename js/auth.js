@@ -126,6 +126,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+// Facebook Login
+
+document.addEventListener("DOMContentLoaded", () => {
+  const facebookBtn = document.getElementById("facebookLoginBtn");
+
+  if (facebookBtn) {
+    facebookBtn.addEventListener("click", async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${window.location.origin}/pages/auth-callback.html`
+        }
+      });
+
+      if (error) {
+        console.error(error);
+        showToast("Facebook login failed", "error");
+      }
+    });
+  }
+});
+
+
 /* =========================
    LOGOUT
 ========================= */

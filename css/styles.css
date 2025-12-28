@@ -31,13 +31,19 @@
   position: fixed;
   inset: 0;
 
-  background-image: url("/assets/global-bg.png");
+  background-image: image-set(
+    url("/assets/global-bg.avif") type("image/avif"),
+    url("/assets/global-bg.webp") type("image/webp"),
+    url("/assets/global-bg.png") type("image/png")
+  );
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 
   z-index: -2;
 }
+
 
 /* Soft dark overlay for readability */
 .global-bg::after {

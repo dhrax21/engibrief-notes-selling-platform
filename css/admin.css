@@ -36,11 +36,20 @@ body {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("/assets/admin-ui-bg.png");
+
+  background-image: image-set(
+    url("/assets/admin-ui-bg.avif") type("image/avif"),
+    url("/assets/admin-ui-bg.webp") type("image/webp"),
+    url("/assets/admin-ui-bg.png") type("image/png")
+  );
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
   z-index: -2;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .with-illustration-bg::after {

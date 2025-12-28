@@ -291,6 +291,35 @@ body::after {
 }
 
 
+.facebook-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 5px;
+
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .facebook-btn:hover {
+    background-color: #166fe5;
+  }
+
+  .facebook-btn img {
+    background: white;
+    border-radius: 50%;
+  }
+
+
 /* =========================
    UTILITIES
 ========================= */
