@@ -201,7 +201,7 @@ window.buyNow = async function (ebookId, price) {
     /* ================= RAZORPAY ================= */
 
     const options = {
-      key: "rzp_test_Rt7n1yYlzd3Lig", // replace later
+      key: "rzp_live_RxKTMEIG9aY8n1", // replace later
       order_id: order.id,
       amount: price * 100,
       currency: "INR",
