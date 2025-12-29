@@ -9,18 +9,18 @@ const { data: sessionData } = await supabase.auth.getSession();
 
 if (sessionData?.session?.user) {
   window.location.replace("/index.html");
-  return;
-}
+} else {
+  // Only attach listeners if user is NOT logged in
 
-// 2️⃣ Listen for auth state changes (OAuth, refresh, back button)
-supabase.auth.onAuthStateChange((event, session) => {
-  if (
-    (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") &&
-    session?.user
-  ) {
-    window.location.replace("/index.html");
-  }
-});
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (
+      (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") &&
+      session?.user
+    ) {
+      window.location.replace("/index.html");
+    }
+  });
+}
 
 /* =====================================================
    STATE
