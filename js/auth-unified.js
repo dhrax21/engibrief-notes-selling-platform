@@ -1,4 +1,6 @@
-import { supabase } from "/js/supabase.js";
+import { supabase } from "./supabase.js";
+
+
 
 /* =====================================================
    🔒 AUTH PAGE GUARD (CRITICAL)
@@ -122,11 +124,18 @@ window.emailAuth = async function () {
 /* =====================================================
    GOOGLE AUTH
 ===================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
   const googleBtn = document.getElementById("googleLoginBtn");
-  if (!googleBtn) return;
+  console.log("Google button:", googleBtn);
+
+  if (!googleBtn) {
+    console.error("❌ googleLoginBtn not found in DOM");
+    return;
+  }
 
   googleBtn.addEventListener("click", async () => {
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -135,8 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (error) {
-      console.error(error);
-      showToast("Google login failed", "error");
+      console.error("❌ OAuth error:", error);
+      alert("Google login failed");
     }
   });
 });
