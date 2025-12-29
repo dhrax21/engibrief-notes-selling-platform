@@ -21,12 +21,22 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("/assets/auth-bg.png");
+
+  background-image: image-set(
+    url("/assets/auth-bg.avif") type("image/avif"),
+    url("/assets/auth-bg.webp") type("image/webp"),
+    url("/assets/auth-bg.png") type("image/png")
+  );
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
   z-index: -2;
+  will-change: transform;
+  transform: translateZ(0);
 }
+
 
 /* Dark overlay for contrast */
 body::after {
