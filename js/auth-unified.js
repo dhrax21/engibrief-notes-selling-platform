@@ -1,6 +1,28 @@
 import { supabase } from "./supabase.js";
 
 
+/* =====================================================
+   🔒 Google Login 
+===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
+  if (!googleBtn) return;
+
+  googleBtn.addEventListener("click", async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/pages/auth-callback.html`,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+      showToast("Google login failed", "error");
+    }
+  });
+});
 
 /* =====================================================
    🔒 AUTH PAGE GUARD (CRITICAL)
@@ -121,34 +143,8 @@ window.emailAuth = async function () {
   }
 };
 
-/* =====================================================
-   GOOGLE AUTH
-===================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  const googleBtn = document.getElementById("googleLoginBtn");
-  console.log("Google button:", googleBtn);
 
-  if (!googleBtn) {
-    console.error("❌ googleLoginBtn not found in DOM");
-    return;
-  }
-
-  googleBtn.addEventListener("click", async () => {
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/pages/auth-callback.html`,
-      },
-    });
-
-    if (error) {
-      console.error("❌ OAuth error:", error);
-      alert("Google login failed");
-    }
-  });
-});
 
 /* =====================================================
    TOAST
