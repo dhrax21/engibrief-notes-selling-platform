@@ -4,17 +4,17 @@ import { supabase } from "/js/supabase.js";
    🔒 AUTH PAGE HARD GUARD
 ========================= */
 
-// 1️⃣ Immediate session check (runs before UI)
+// 1️⃣ Immediate session check
 const { data: sessionData } = await supabase.auth.getSession();
 
 if (sessionData?.session?.user) {
   window.location.replace("/index.html");
-  throw new Error("Auth page blocked: user already logged in");
+  return;
 }
 
-// 2️⃣ Listen for auth state changes (OAuth, refresh, back button)
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (session?.user) {
+// 2️⃣ Listen for auth changes (OAuth, refresh, back button)
+supabase.auth.onAuthStateChange((event, session) => {
+  if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session?.user) {
     window.location.replace("/index.html");
   }
 });

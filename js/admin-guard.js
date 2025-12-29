@@ -1,25 +1,32 @@
 import { supabase } from "/js/supabase.js";
 
-
-const ADMIN_EMAIL = "manksingh36@gmail.com";
-
 document.addEventListener("DOMContentLoaded", async () => {
-  // ✅ SAFE auth check
+  // 1️⃣ Check auth session
   const { data: { session } } = await supabase.auth.getSession();
 
-  // 🚫 Not logged in → login page
   if (!session) {
-    window.location.href = "/pages/login.html";
+    window.location.replace("/pages/auth.html");
     return;
   }
 
-  const user = session.user;
+  // 2️⃣ Fetch role from DB (source of truth)
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .single();
 
-  // 🚫 Logged in but not admin → home page
-  if (user.email !== ADMIN_EMAIL) {
-    window.location.href = "/index.html";
+  if (error || !profile) {
+    console.error("Profile fetch failed", error);
+    window.location.replace("/index.html");
     return;
   }
 
-  // 👑 Admin allowed → continue
+  // 3️⃣ Enforce admin role
+  if (profile.role !== "admin") {
+    window.location.replace("/index.html");
+    return;
+  }
+
+  // 👑 Admin confirmed → allow page
 });

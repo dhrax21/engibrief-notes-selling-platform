@@ -4,15 +4,20 @@ import { supabase } from "/js/supabase.js";
    🔒 AUTH PAGE GUARD (CRITICAL)
 ===================================================== */
 
+// 1️⃣ Immediate session check
 const { data: sessionData } = await supabase.auth.getSession();
 
 if (sessionData?.session?.user) {
   window.location.replace("/index.html");
-  throw new Error("Auth page blocked: user already logged in");
+  return;
 }
 
+// 2️⃣ Listen for auth state changes (OAuth, refresh, back button)
 supabase.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
+  if (
+    (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") &&
+    session?.user
+  ) {
     window.location.replace("/index.html");
   }
 });
@@ -20,7 +25,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 /* =====================================================
    STATE
 ===================================================== */
-let mode = "login"; 
+let mode = "login";
 
 /* =====================================================
    DOM ELEMENTS
@@ -150,5 +155,3 @@ function showToast(message, type = "info", duration = 3000) {
     toast.className = "toast hidden";
   }, duration);
 }
-
-
