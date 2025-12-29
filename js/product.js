@@ -147,14 +147,35 @@ async function render() {
       });
     }
 
-    // BUY / DOWNLOAD
-   card.querySelector(".ebook-btn").addEventListener("click", async () => {
-      if (purchasedSet.has(ebook.id)) {
-        await downloadWithRetry(ebook.id);   
-      } else {
-        await buyNow(ebook.id, ebook.price);
-      }
-});
+       // BUY / DOWNLOAD
+        card.querySelector(".ebook-btn").addEventListener("click", async () => {
+        if (purchasedSet.has(ebook.id)) {
+          await downloadWithRetry(ebook.id);
+          return;
+        }
+
+        const success = await buyNow(ebook.id, ebook.price);
+
+        if (success === true) {
+          purchasedSet.add(ebook.id);
+          localStorage.setItem(
+            "purchasedEbooks",
+            JSON.stringify([...purchasedSet])
+          );
+
+          await render();           // updates button
+          await downloadWithRetry(ebook.id);
+        }
+      });
+
+
+//    card.querySelector(".ebook-btn").addEventListener("click", async () => {
+//       if (purchasedSet.has(ebook.id)) {
+//         await downloadWithRetry(ebook.id);   
+//       } else {
+//         await buyNow(ebook.id, ebook.price);
+//       }
+// });
 
 
     grid.appendChild(card);
@@ -169,12 +190,12 @@ async function render() {
 
 let isBuying = false;
 
-window.buyNow = async function (ebookId, price) {
+window.buyNow = async function buyNow(ebookId, price) {
   try {
     if (!user) {
       showToast("Please login to continue", "info", 2000);
       window.location.href = "/pages/auth.html";
-      return;
+      return false;
     }
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -200,72 +221,64 @@ window.buyNow = async function (ebookId, price) {
 
     /* ================= RAZORPAY ================= */
 
-    const options = {
-      key: "rzp_live_RxKTMEIG9aY8n1", // replace later
-      order_id: order.id,
-      amount: price * 100,
-      currency: "INR",
-      name: "EngiBriefs",
+    return await new Promise((resolve) => {
+      const options = {
+        key: "rzp_live_RxKTMEIG9aY8n1", // move to env later
+        order_id: order.id,
+        amount: price * 100,
+        currency: "INR",
+        name: "EngiBriefs",
 
-      handler: async function (response) {
-        try {
-          /* ================= VERIFY ================= */
+        handler: async function (response) {
+          try {
+            /* ================= VERIFY ================= */
 
-          const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }),
-          });
+            const verifyRes = await fetch(`${EDGE_BASE}/verify-payment`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
 
-          if (!verifyRes.ok) throw new Error("Verification failed");
+            if (!verifyRes.ok) throw new Error("Verification failed");
 
-          const result = await verifyRes.json();
-          if (!result.success) throw new Error("Payment not verified");
+            const result = await verifyRes.json();
+            if (!result.success) throw new Error("Payment not verified");
 
-          /* ================= UI STATE UPDATE ================= */
+            showToast("Payment successful", "success", 1500);
+            resolve(true);
 
-          purchasedSet.add(ebookId);
-          localStorage.setItem(
-            "purchasedEbooks",
-            JSON.stringify([...purchasedSet])
-          );
-
-          await render(); // 🔑 THIS updates Buy → Download
-
-          showToast("Payment successful", "success", 1500);
-
-          /* ================= DOWNLOAD ================= */
-
-          await downloadWithRetry(ebookId);
-
-
-        } catch (err) {
-          console.error(err);
-          showToast("Payment failed", "error", 2500);
-        }
-      },
-
-      modal: {
-        ondismiss() {
-          showToast("Payment cancelled", "info", 2000);
+          } catch (err) {
+            console.error(err);
+            showToast("Payment failed", "error", 2500);
+            resolve(false);
+          }
         },
-      },
-    };
 
-    new Razorpay(options).open();
+        modal: {
+          ondismiss() {
+            showToast("Payment cancelled", "info", 2000);
+            resolve(false);
+          },
+        },
+      };
+
+      new Razorpay(options).open();
+    });
 
   } catch (err) {
     console.error(err);
     showToast("Payment failed", "error", 2500);
+    return false;
   }
 };
+
 
 
 // Delete Ebook Logic 

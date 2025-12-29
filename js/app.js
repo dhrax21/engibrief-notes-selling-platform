@@ -86,3 +86,13 @@ document.addEventListener("DOMContentLoaded", renderNavbar);
 supabase.auth.onAuthStateChange(() => {
   renderNavbar();
 });
+
+
+const hamburger = document.getElementById("hamburgerBtn");
+const navLinks = document.getElementById("navLinks");
+
+if (hamburger && navLinks) {
+  hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+  });
+}
