@@ -122,8 +122,11 @@ window.emailAuth = async function () {
 /* =====================================================
    GOOGLE AUTH
 ===================================================== */
-window.loginWithGoogle = async function () {
-  try {
+document.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
+  if (!googleBtn) return;
+
+  googleBtn.addEventListener("click", async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -131,12 +134,12 @@ window.loginWithGoogle = async function () {
       },
     });
 
-    if (error) throw error;
-  } catch (err) {
-    console.error(err);
-    showToast("Google login failed", "error");
-  }
-};
+    if (error) {
+      console.error(error);
+      showToast("Google login failed", "error");
+    }
+  });
+});
 
 /* =====================================================
    TOAST
