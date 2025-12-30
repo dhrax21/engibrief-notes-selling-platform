@@ -1,0 +1,321 @@
+/* =========================
+   VARIABLES
+========================= */
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+
+  --text-dark: #0f172a;
+  --text-light: #475569;
+
+  --glass-1: rgba(255, 246, 220, 0.85);
+  --glass-2: rgba(250, 232, 200, 0.75);
+  --glass-3: rgba(245, 220, 180, 0.65);
+
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+
+  --radius-md: 20px;
+  --radius-lg: 28px;
+
+  --max-width: 1200px;
+}
+
+/* =========================
+   RESET
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.6;
+
+  background: radial-gradient(
+    1200px circle at 10% 20%,
+    #fff3d6 0%,
+    #f6e6c9 35%,
+    #e9dcc7 65%,
+    #e2d6c4 100%
+  );
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* =========================
+   NAVBAR (HOOK ONLY)
+   actual layout stays in navbar.css
+========================= */
+.navbar {
+  background: inherit;
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(120, 100, 60, 0.18);
+}
+
+/* =========================
+   HERO
+========================= */
+.hero {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 96px 24px 120px;
+
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.hero-content h1 {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hero-content h1 span {
+  color: var(--primary);
+  display: block;
+  margin-top: 10px;
+}
+
+.hero-content p {
+  margin-top: 18px;
+  max-width: 520px;
+  color: var(--text-light);
+}
+
+.hero-actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 16px;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 30px rgba(79,70,229,0.45);
+}
+
+.secondary-btn {
+  background: rgba(255,255,255,0.7);
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.hero-image {
+  background: linear-gradient(
+    135deg,
+    var(--glass-1),
+    var(--glass-2),
+    var(--glass-3)
+  );
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* =========================
+   TRUST
+========================= */
+.trust {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.trust-logos {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  font-weight: 700;
+}
+
+/* =========================
+   SHARED GLASS CARD
+========================= */
+.glass {
+  background: linear-gradient(
+    135deg,
+    var(--glass-1),
+    var(--glass-2),
+    var(--glass-3)
+  );
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* =========================
+   FEATURES
+========================= */
+.features {
+  padding: 96px 24px;
+  text-align: center;
+}
+
+.feature-grid {
+  max-width: var(--max-width);
+  margin: 48px auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+  gap: 32px;
+}
+
+.feature-card {
+  padding: 36px 28px;
+}
+
+/* =========================
+   STATS
+========================= */
+.stats {
+  padding: 80px 24px;
+}
+
+.stats-grid {
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 32px;
+  text-align: center;
+}
+
+.stat-item h3 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* =========================
+   TESTIMONIALS
+========================= */
+.testimonials {
+  padding: 96px 24px;
+  text-align: center;
+}
+
+.testimonial-grid {
+  max-width: var(--max-width);
+  margin: 48px auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 32px;
+}
+
+.testimonial-card {
+  padding: 36px 32px;
+}
+
+.testimonial-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.testimonial-stars {
+  color: #f59e0b;
+  margin-bottom: 12px;
+}
+
+/* =========================
+   CTA
+========================= */
+.cta {
+  padding: 120px 24px;
+  text-align: center;
+}
+
+.cta-box {
+  max-width: 720px;
+  margin: auto;
+  padding: 64px 48px;
+
+  background: linear-gradient(
+    135deg,
+    var(--glass-1),
+    var(--glass-2),
+    var(--glass-3)
+  );
+
+  border-radius: 32px;
+  box-shadow: var(--glass-shadow);
+}
+
+.cta-primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  padding: 16px 36px;
+  border-radius: 16px;
+  font-weight: 700;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  padding: 96px 24px 32px;
+}
+
+.footer-container {
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 56px 48px;
+
+  background: linear-gradient(
+    135deg,
+    var(--glass-1),
+    var(--glass-2),
+    var(--glass-3)
+  );
+
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}

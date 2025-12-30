@@ -7,12 +7,37 @@
 
   <!-- Favicon -->
   <link rel="icon" href="/assets/google-icon.png" />
-
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/admin.css"/>
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body class="with-illustration-bg">
+
+ 
+
+<header class="navbar">
+  <a href="/index.html" class="brand">
+    <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
+    <span class="brand-text">
+        <span class="brand-eng">Eng</span><span class="brand-brief">ibrief</span>
+    </span>
+  </a>
+
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="nav-links" id="navLinks">
+    <a href="/index.html">Home</a>
+    <a href="/pages/products.html">E-Books</a>
+    <a href="/pages/support.html">Support</a>
+    <div id="authArea"></div>
+  </nav>
+</header>
 
 <!-- =========================
      ADMIN ROUTE GUARD
@@ -93,7 +118,11 @@
 <!-- =========================
      SCRIPTS
 ========================= -->
+
+<!-- Navbar auth -->
+<script type="module" src="/js/app.js"></script>
 <script type="module" src="/js/admin-upload.js"></script>
+<script></script>
 
 </body>
 </html>

@@ -16,11 +16,23 @@
 
 <!-- ================= NAVBAR ================= -->
 <header class="navbar">
-  <div class="logo">Engibrief</div>
-  <nav class="nav-links">
+  <a href="/index.html" class="brand">
+    <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
+    <span class="brand-text">
+        <span class="brand-eng">Eng</span><span class="brand-brief">ibrief</span>
+    </span>
+  </a>
+
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="nav-links" id="navLinks">
     <a href="/index.html">Home</a>
     <a href="/pages/products.html">E-Books</a>
-    <a href="/pages/pricing.html">Pricing</a>
     <a href="/pages/support.html">Support</a>
     <div id="authArea"></div>
   </nav>

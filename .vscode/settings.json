@@ -7,5 +7,6 @@
     "./supabase/functions"
   ],
   "typescript.validate.enable": false,
-  "javascript.validate.enable": false
+  "javascript.validate.enable": false,
+  "liveServer.settings.port": 5501
 }

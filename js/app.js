@@ -88,11 +88,13 @@ supabase.auth.onAuthStateChange(() => {
 });
 
 
-const hamburger = document.getElementById("hamburgerBtn");
-const navLinks = document.getElementById("navLinks");
+document.addEventListener("DOMContentLoaded", () => {
+  const hamburger = document.getElementById("hamburgerBtn");
+  const navLinks = document.getElementById("navLinks");
 
-if (hamburger && navLinks) {
+  if (!hamburger || !navLinks) return;
+
   hamburger.addEventListener("click", () => {
     navLinks.classList.toggle("active");
   });
-}
+});
