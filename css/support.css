@@ -1,0 +1,121 @@
+/* =========================
+   SUPPORT HERO
+========================= */
+.support-hero {
+  padding: 80px 20px 50px;
+  text-align: center;
+}
+
+.support-hero-content {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.support-hero h1 {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.support-hero p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* =========================
+   SUPPORT CONTAINER
+========================= */
+.support-container {
+  padding: 40px 20px 100px;
+}
+
+.support-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+/* =========================
+   SUPPORT CARD
+========================= */
+.support-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 28px;
+
+  box-shadow: 0 16px 40px rgba(120, 90, 40, 0.18);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.support-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 28px 70px rgba(120, 90, 40, 0.32);
+}
+
+.support-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.support-card p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 16px;
+}
+
+/* =========================
+   SUPPORT ACTION LINKS
+========================= */
+.support-action {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.support-action:hover {
+  color: var(--primary-dark);
+  transform: translateX(4px);
+}
+
+/* =========================
+   FOOTER OVERRIDES (SAFE)
+========================= */
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .support-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 600px) {
+  .support-hero h1 {
+    font-size: 30px;
+  }
+
+  .support-card {
+    padding: 26px 22px;
+  }
+
+}
