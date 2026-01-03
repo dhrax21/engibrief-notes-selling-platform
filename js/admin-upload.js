@@ -13,36 +13,33 @@ if (!window.__adminUploadInitialized) {
     /* =========================
        AUTH CHECK
     ========================= */
-    const { data: { session } } = await supabase.auth.getSession();
+/* =========================
+   AUTH CHECK
+========================= */
+const { data: { session } } = await supabase.auth.getSession();
 
-    if (!session) {
-      showToast("Please login as admin", "info", 2200);
+if (!session) {
+  showToast("Please login as admin", "info", 2200);
+  setTimeout(() => {
+    window.location.replace("/pages/auth.html");
+  }, 2000);
+  return;
+}
 
-      setTimeout(() => {
-        window.location.replace("/pages/auth.html");
-      }, 2000);
+/* =========================
+   ADMIN CHECK (JWT-BASED)
+========================= */
+const isAdmin =
+  session.user.user_metadata?.role === "admin";
 
-      return;
-    }
+if (!isAdmin) {
+  showToast("Access denied. Admins only.", "error", 2200);
+  setTimeout(() => {
+    window.location.replace("/index.html");
+  }, 2000);
+  return;
+}
 
-    /* =========================
-       ROLE CHECK
-    ========================= */
-    const { data: profile, error: roleError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-
-    if (roleError || profile?.role !== "admin") {
-      showToast("Access denied. Admins only.", "error", 2200);
-
-      setTimeout(() => {
-        window.location.replace("/index.html");
-      }, 2000);
-
-      return;
-    }
 
 
     /* =========================

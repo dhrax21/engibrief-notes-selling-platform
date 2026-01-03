@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Razorpay E-Books | EngiBriefs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/products-rzp.css" />
+</head>
+
+<body class="global-bg">
+  
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <a href="/index.html" class="brand">
+    <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
+    <span class="brand-text">
+        <span class="brand-eng">Eng</span><span class="brand-brief">ibrief</span>
+    </span>
+  </a>
+
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="nav-links" id="navLinks">
+    <a href="/index.html">Home</a>
+    <a href="/pages/products.html">Exclusive E-Books</a>
+    <a href="/pages/support.html">Support</a>
+    <a href="/pages/products-rzp.html">Quick Buy</a>
+
+    <div id="authArea"></div>
+  </nav>
+</header>
+
+<!-- ================= PAGE HEADER ================= -->
+<section class="page-hero">
+  <h1>Quick Buy E-Books</h1>
+  <p>Instant purchase via Razorpay · No account complexity</p>
+</section>
+<div class="filter-bar">
+  <label for="deptFilter">Department:</label>
+  <select id="deptFilter">
+    <option value="ALL">All</option>
+    <option value="CSE">CSE</option>
+    <option value="ECE">ECE</option>
+    <option value="CE">CE</option>
+    <option value="ME">ME</option>
+  </select>
+
+  <label for="sortRzp">Sort by:</label>
+  <select id="sortRzp">
+    <option value="latest">Latest</option>
+    <option value="price_low">Price: Low to High</option>
+    <option value="price_high">Price: High to Low</option>
+  </select>
+</div>
+
+
+<!-- ================= PRODUCTS GRID ================= -->
+<main class="products-container">
+  <div id="rzpGrid" class="products-grid"></div>
+  <p id="emptyState" class="empty-state hidden">
+    No ebooks available at the moment.
+  </p>
+</main>
+
+<!-- ================= SCRIPTS ================= -->
+<script type="module" src="/js/app.js"></script>
+<script type="module" src="/js/products-rzp.js"></script>
+
+</body>
+</html>

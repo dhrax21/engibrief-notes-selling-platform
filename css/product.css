@@ -91,7 +91,7 @@ img {
   margin: 0 auto 100px;
   padding: 48px;
 
-  background: #ffffff;
+  background: transparent;
   border-radius: 28px;
 
   box-shadow: 0 30px 80px rgba(120, 90, 40, 0.25);

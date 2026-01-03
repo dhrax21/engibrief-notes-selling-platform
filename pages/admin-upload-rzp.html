@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Upload (Razorpay) | EngiBriefs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/admin-upload-rzp.css" />
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+  <a href="/index.html" class="brand">
+    <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
+    <span class="brand-text">
+      <span class="brand-eng">Eng</span><span class="brand-brief">ibrief</span>
+    </span>
+  </a>
+
+  <nav class="nav-links">
+    <a href="/index.html">Home</a>
+    <a href="/pages/products.html">E-Books</a>
+    <a href="/pages/support.html">Support</a>
+    <div id="authArea"></div>
+  </nav>
+</header>
+
+<!-- ================= ADMIN UPLOAD ================= -->
+<main class="admin-container">
+  <h1>Add Ebook (Razorpay Link)</h1>
+  <p class="subtitle">Lightweight commerce flow (no PDF upload)</p>
+
+  <form id="rzpUploadForm" class="admin-form">
+
+    <label>
+      Title
+      <input type="text" id="title" required />
+    </label>
+
+    <label>
+      Subject
+      <input type="text" id="subject" required />
+    </label>
+
+    <label>
+      Department
+      <input type="text" id="department" required />
+    </label>
+
+    <label>
+      Exam (optional)
+      <input type="text" id="exam" />
+    </label>
+
+    <label>
+      Price (₹)
+      <input type="number" id="price" min="0" required />
+    </label>
+
+    <label>
+      Razorpay Payment Link
+      <input
+        type="url"
+        id="razorpayLink"
+        placeholder="https://rzp.io/..."
+        required
+      />
+    </label>
+
+      <label>
+        Cover Image
+        <input
+          type="file"
+          id="coverFile"
+          accept="image/*"
+          required
+        />
+      </label>
+
+    <button type="submit" class="btn-primary">
+      Publish Ebook
+    </button>
+
+  </form>
+</main>
+
+<!-- ================= SCRIPTS ================= -->
+<script type="module" src="/js/app.js"></script>
+<script type="module" src="/js/admin-upload-rzp.js"></script>
+
+</body>
+</html>

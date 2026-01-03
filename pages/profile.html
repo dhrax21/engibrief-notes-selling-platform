@@ -19,12 +19,24 @@
 <header class="navbar">
   <a href="/index.html" class="brand">
     <img src="/assets/logo.svg" alt="Engibrief Logo" class="brand-icon">
-    <span class="brand-text">Engibrief</span>
+    <span class="brand-text">
+        <span class="brand-eng">Eng</span><span class="brand-brief">ibrief</span>
+    </span>
   </a>
-  <nav class="nav-links">
+
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav class="nav-links" id="navLinks">
     <a href="/index.html">Home</a>
-    <a href="/pages/products.html">E-Books</a>
+    <a href="/pages/products.html">Exclusive E-Books</a>
     <a href="/pages/support.html">Support</a>
+    <a href="/pages/products-rzp.html">Quick Buy</a>
+
     <div id="authArea"></div>
   </nav>
 </header>
@@ -93,6 +105,7 @@
     const emailInput = document.getElementById("profileEmail");
     const nameInput = document.getElementById("profileName");
     const avatar = document.getElementById("avatarInitial");
+    const saveBtn = document.getElementById("saveProfileBtn");
 
     /* =========================
        AUTH GUARD
@@ -113,7 +126,7 @@
     avatar.textContent = user.email.charAt(0).toUpperCase();
 
     /* =========================
-       LOAD PROFILE
+       LOAD PROFILE (DB)
     ========================= */
     const { data: profile, error } = await supabase
       .from("profiles")
@@ -123,34 +136,56 @@
 
     if (!error && profile?.full_name) {
       nameInput.value = profile.full_name;
+    } else if (user.user_metadata?.full_name) {
+      nameInput.value = user.user_metadata.full_name;
     }
 
     /* =========================
        SAVE PROFILE
     ========================= */
-    document.getElementById("saveProfileBtn")
-      .addEventListener("click", async () => {
+    saveBtn.addEventListener("click", async () => {
+      const fullName = nameInput.value.trim();
 
-        const fullName = nameInput.value.trim();
-        if (!fullName) {
-          showToast("Name cannot be empty", "error");
-          return;
-        }
+      if (!fullName) {
+        showToast("Name cannot be empty", "error");
+        return;
+      }
 
-        const { error } = await supabase
-          .from("profiles")
-          .upsert({
-            id: user.id,
-            full_name: fullName
-          });
+      saveBtn.disabled = true;
 
-        if (error) {
-          showToast(error.message, "error");
-          return;
-        }
+      /* 1️⃣ Update profiles table */
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          full_name: fullName
+        });
 
-        showToast("Profile updated successfully", "success");
+      if (profileError) {
+        showToast(profileError.message, "error");
+        saveBtn.disabled = false;
+        return;
+      }
+
+      /* 2️⃣ Update JWT user metadata */
+      const { error: metaError } = await supabase.auth.updateUser({
+        data: { full_name: fullName }
       });
+
+      if (metaError) {
+        showToast(metaError.message, "error");
+        saveBtn.disabled = false;
+        return;
+      }
+
+      /* 3️⃣ Refresh navbar instantly */
+      if (typeof window.renderNavbar === "function") {
+        await window.renderNavbar();
+      }
+
+      showToast("Profile updated successfully", "success");
+      saveBtn.disabled = false;
+    });
 
     /* =========================
        LOGOUT
@@ -162,6 +197,7 @@
       });
   });
 </script>
+
 
 <!-- 🔝 NAVBAR AUTH RENDERER -->
 <script type="module" src="/js/app.js"></script>

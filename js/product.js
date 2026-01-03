@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .single();
 
     isAdmin = profile?.role === "admin";
   }

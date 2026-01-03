@@ -7,7 +7,8 @@ const ROUTES = {
   home: "/index.html",
   auth: "/pages/auth.html",
   profile: "/pages/profile.html",
-  admin: "/pages/admin-upload.html"
+  admin: "/pages/admin-upload.html",
+  adminRzp: "/pages/admin-upload-rzp.html" 
 };
 
 async function renderNavbar() {
@@ -28,34 +29,40 @@ async function renderNavbar() {
     return;
   }
 
-  // 2️⃣ Fetch profile name
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .maybeSingle();
+  // 2️⃣ Derived user info (JWT-based)
+  const isAdmin = user.user_metadata?.role === "admin";
 
-  if (error) {
-    console.error("Profile fetch error:", error);
-  }
+  const displayName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email;
 
-  const displayName = profile?.full_name || user.email;
-
-  /* 👑 ADMIN */
-  if (user.email === ADMIN_EMAIL) {
-    authArea.innerHTML = `
+  /* 🛠 ADMIN USER */
+ if (isAdmin) {
+  authArea.innerHTML = `
+    <div class="admin-actions">
       <button class="admin-btn" id="adminUploadBtn">Upload</button>
-      <span class="user-name">${displayName}</span>
-      <a href="${ROUTES.profile}" class="nav-link">Profile</a>
-      <button class="logout-btn" id="logoutBtn">Logout</button>
-    `;
+      <button class="admin-btn" id="adminUploadRzpBtn">Upload RZP</button>
+    </div>
 
-    document
-      .getElementById("adminUploadBtn")
-      ?.addEventListener("click", () => {
-        window.location.href = ROUTES.admin;
-      });
-  }
+    <span class="user-name">${displayName}</span>
+    <a href="${ROUTES.profile}" class="nav-link">Profile</a>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  `;
+
+  document
+    .getElementById("adminUploadBtn")
+    ?.addEventListener("click", () => {
+      window.location.href = ROUTES.admin;        // normal upload
+    });
+
+  document
+    .getElementById("adminUploadRzpBtn")
+    ?.addEventListener("click", () => {
+      window.location.href = ROUTES.adminRzp;     // Razorpay upload
+    });
+}
+
 
   /* 👤 NORMAL USER */
   else {
@@ -74,6 +81,7 @@ async function renderNavbar() {
       window.location.href = ROUTES.home;
     });
 }
+
 
 /* =========================
    INITIAL LOAD
