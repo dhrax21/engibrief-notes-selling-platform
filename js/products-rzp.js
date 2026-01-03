@@ -42,9 +42,11 @@ function renderRzpGrid(ebooks) {
       <p class="subject">${ebook.subject}</p>
       ${ebook.exam ? `<span class="exam-badge">${ebook.exam}</span>` : ""}
       <div class="card-footer">
-        <span class="price">₹${ebook.price}</span>
-        <button class="buy-btn">Buy Now</button>
-      </div>
+      <span class="price">₹${ebook.price}</span>
+      <button class="buy-btn">
+        Buy Now
+      </button>
+    </div>
       <p class="rzp-note">
         No login required · Secure checkout via Razorpay
       </p>
