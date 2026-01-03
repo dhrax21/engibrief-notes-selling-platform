@@ -14,35 +14,7 @@
 
 <body class="with-illustration-bg">
 
-<!-- =========================
-     ADMIN ROUTE GUARD
-========================= -->
-<!-- <script type="module">
-  import { supabase } from "/js/supabase.js";
 
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    // 🔐 Redirect to unified auth page
-    window.location.replace("/pages/auth.html");
-  } else {
-    const user = session.user;
-
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (error || profile?.role !== "admin") {
-      window.location.replace("/index.html");
-    }
-  }
-</script> -->
-
-<!-- =========================
-     ADMIN UI
-========================= -->
 <div class="admin-container">
 
   <header class="admin-header">

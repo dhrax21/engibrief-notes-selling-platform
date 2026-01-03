@@ -1108,3 +1108,58 @@ LOGOUT BUTTON
   border-radius: 6px;
   font-weight: 600;
 }
+
+
+/* =========================
+   MOBILE NAVBAR (HAMBURGER)
+========================= */
+
+@media (max-width: 768px) {
+
+  /* Show hamburger on mobile */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  /* Hide nav links by default */
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 64px;
+    right: 0;
+    width: 100%;
+    background: #ffffff;
+    flex-direction: column;
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  /* Show when hamburger is clicked */
+  .nav-links.open {
+    display: flex;
+  }
+
+
+  .nav-links a,
+  #authArea {
+    width: 100%;
+  }
+
+  .nav-links a,
+  .admin-actions,
+  .user-name,
+  .logout-btn {
+    margin-bottom: 0.75rem;
+  }
+}
+
+
+@media (min-width: 769px) {
+  .hamburger {
+    display: none;
+  }
+}
