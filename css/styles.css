@@ -208,29 +208,42 @@ a {
 /* Stats */
 
 .stats {
-  padding: 90px 20px;
-  margin: 80px 0;
+  padding: 80px 20px;
+  background: transparent;
 }
-
 .stats-grid {
-  display: flex;
-  justify-content: center;
-  gap: 100px;
-}
-
-.stat-item {
+  max-width: 900px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 30px;
   text-align: center;
 }
 
+.stat-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.6s ease;
+}
+
+.stats.in-view .stat-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stat-item:nth-child(2) { transition-delay: 0.1s; }
+.stat-item:nth-child(3) { transition-delay: 0.2s; }
+
+
 .stat-item h3 {
-  font-size: 42px;
-  margin-bottom: 6px;
-  color: #1f2937;
+  font-size: 36px;
+  font-weight: 700;
+  color: black;
 }
 
 .stat-item p {
+  margin-top: 6px;
+  color: #555;
   font-size: 15px;
-  color: #374151;
 }
 
 
@@ -656,6 +669,125 @@ a {
     display: none;
   }
 }
+
+
+.founders-section {
+  padding: 80px 20px;
+  background: transparent;
+  text-align: center;
+}
+
+.founders-section h2 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.founders-subtitle {
+  margin-top: 10px;
+  color: #555;
+}
+
+.founders-grid {
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.founder-card {
+  background: rgba(255, 255, 255, 0.88);;
+  border-radius: 16px;
+  padding: 30px 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.founder-card img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+.founder-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.role {
+  color: #2563eb;
+  font-weight: 500;
+  margin: 4px 0 10px;
+}
+
+.bio {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.social-links {
+  margin-top: 14px;
+}
+
+.social-links a {
+  margin: 0 8px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #2563eb;
+}
+
+.founder-card img {
+  transition: transform 0.3s ease;
+}
+
+.founder-card:hover img {
+  transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+
+
+/* Initial hidden state */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Activated state */
+[data-animate].in-view {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+/* Stagger effect for cards */
+.founder-card:nth-child(1).in-view {
+  transition-delay: 0.1s;
+}
+
+.founder-card:nth-child(2).in-view {
+  transition-delay: 0.25s;
+}
+
+/* Hover polish */
+.founder-card:hover {
+  transform: translateY(-6px);
+  transition: transform 0.25s ease;
+}
+
 
 
 

@@ -122,24 +122,27 @@
 </section>
 
 <!-- ================= STATS ================= -->
-<section class="stats">
+<section class="stats" data-animate>
   <div class="stats-grid">
+
     <div class="stat-item">
-      <h3>10k+</h3>
+      <h3 data-count="10000" data-suffix="k+">0</h3>
       <p>Students</p>
     </div>
 
     <div class="stat-item">
-      <h3>50+</h3>
+      <h3 data-count="50" data-suffix="+">0</h3>
       <p>E-Books</p>
     </div>
 
     <div class="stat-item">
-      <h3>15+</h3>
+      <h3 data-count="15" data-suffix="+">0</h3>
       <p>Branches</p>
     </div>
+
   </div>
 </section>
+
 
 <!-- ================= TESTIMONIALS ================= -->
 <section class="testimonials">
@@ -174,6 +177,43 @@
     </div>
   </div>
 </section>
+
+<!-- Founder Section -->
+
+<section class="founders-section"  data-animate>
+  <h2>Meet the Founder</h2>
+  <p class="founders-subtitle">
+    Built by an engineer, for engineers.
+  </p>
+
+  <div class="founders-grid">
+
+    <!-- Founder -->
+    <div class="founder-card"  data-animate>
+      <img src="/assets/users/mank-founder.png" alt="Founder photo">
+      <h3>Er Mayank Singh</h3>
+      <p class="role">Founder</p>
+      <p class="bio">
+        Civil Engineer and educator with a focus on exam-oriented
+        learning for GATE, JE, and IES aspirants.
+      </p>
+
+       <p class="founder-quote" data-animate>
+          “We built this to simplify exam preparation.”
+        </p>
+
+      <div class="social-links">
+        <!-- <a href="#" target="_blank">LinkedIn</a> -->
+        <a href="https://www.instagram.com/mksingh_mayank?igsh=MTB0azA4NWo0aTB2cQ==" target="_blank">Instagram</a>
+      </div>
+    </div>
+       
+
+
+  </div>
+</section>
+
+
 
 <!-- ================= CTA ================= -->
 <section class="cta">
@@ -244,5 +284,68 @@
 
 <!-- ================= APP SCRIPT ================= -->
 <script type="module" src="/js/app.js"></script>
+<script>
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 }
+  );
+
+  document.querySelectorAll("[data-animate]").forEach(el => {
+    observer.observe(el);
+  });
+</script>
+
+<script>
+  function animateCount(el) {
+    const target = +el.dataset.count;
+    const suffix = el.dataset.suffix || "";
+    const duration = 1200;
+    const startTime = performance.now();
+
+    function update(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const value = Math.floor(progress * target);
+
+      // Handle k+
+      if (suffix.includes("k")) {
+        el.textContent = Math.floor(value / 1000) + suffix;
+      } else {
+        el.textContent = value + suffix;
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  const statsObserver = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target
+            .querySelectorAll("[data-count]")
+            .forEach(animateCount);
+
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.3 }
+  );
+
+  statsObserver.observe(document.querySelector(".stats"));
+</script>
+
+
 </body>
 </html>
