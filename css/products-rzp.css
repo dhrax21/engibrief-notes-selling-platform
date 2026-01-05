@@ -55,10 +55,9 @@
 
 
 .product-card h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.35;
-  margin: 4px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 .product-card .subject {
   font-size: 0.85rem;
@@ -87,7 +86,7 @@
 
 .card-footer {
   display: flex;
-  flex-direction: column;   /* 🔑 vertical layout */
+  flex-direction: column;   
   gap: 10px;
   margin-top: 12px;
 }
@@ -99,7 +98,7 @@
 }
 
 .buy-btn {
-  width: 100%;              /* 🔥 full width */
+  width: 100%;              
   padding: 14px 0;
   border-radius: 12px;
   border: none;

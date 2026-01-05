@@ -129,9 +129,10 @@ img {
 
 .ebook-card img {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 2 / 3;
   object-fit: cover;
-  background: #f8fafc;
+  border-radius: 12px;
+  background: #f3f4f6;
 }
 
 
