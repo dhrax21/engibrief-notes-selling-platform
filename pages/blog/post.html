@@ -81,10 +81,28 @@
         alt="Blog thumbnail"
         loading="lazy"
       />
-
-      <section id="content" class="content"></section>
-
+    <section id="content" class="content"></section>
     </article>
+
+    <section class="comments-section">
+  <h2>Comments</h2>
+
+      <form id="commentForm" class="comment-form hidden">
+        <textarea
+          id="commentInput"
+          placeholder="Write your comment…"
+          required
+        ></textarea>
+        <button type="submit">Post comment</button>
+      </form>
+
+      <p id="loginPrompt" class="login-prompt hidden">
+        Please log in to comment.
+      </p>
+
+      <div id="commentsList" class="comments-list"></div>
+    </section>
+
 
     <!-- Error State -->
     <div id="error" class="error hidden">

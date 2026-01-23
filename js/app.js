@@ -7,6 +7,7 @@ const ROUTES = {
   admin: "/pages/admin-upload.html",
   adminBlog: "/pages/admin/blog-editor.html",
   adminRzp: "/pages/admin-upload-rzp.html",
+  adminBlogList: "/pages/admin/blog-list.html"
 };
 
 /* =========================
@@ -41,9 +42,12 @@ async function renderNavbar() {
       <div class="admin-actions">
         <button class="admin-btn" id="adminUploadBtn">Upload</button>
         <button class="admin-btn" id="adminUploadRzpBtn">Upload RZP</button>
-         <button class="admin-btn admin-blog-btn" id="adminBlogBtn">
-        Upload Blog
-      </button>
+          <button class="admin-btn admin-blog-btn" id="adminBlogBtn">
+            Upload Blog
+          </button>
+          <button class="admin-btn admin-blog-list-btn" id="adminBlogListBtn">
+            Blog List
+          </button>
       </div>
       <span class="user-name">${displayName}</span>
       <a href="${ROUTES.profile}" class="nav-link">Profile</a>
@@ -63,6 +67,10 @@ async function renderNavbar() {
       ?.addEventListener("click", () => {
         window.location.href = ROUTES.adminRzp;
       });
+    document.getElementById("adminBlogListBtn")
+      ?.addEventListener("click", () => {
+        window.location.href = ROUTES.adminBlogList;
+      });  
   } 
   /* NORMAL USER */
   else {

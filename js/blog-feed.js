@@ -18,13 +18,15 @@ async function loadBlogs() {
   container.innerHTML = blogs.map(renderBlogCard).join("");
 }
 
+// {blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
+
 function renderBlogCard(blog) {
   return `
     <article class="blog-card">
       <a href="/pages/blog/post.html?slug=${blog.slug}">
         <img
           class="blog-card-img"
-          src="${blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
+          src="${blog.thumbnail_url}"
           alt="${blog.title}"
         />
         <div class="blog-card-body">

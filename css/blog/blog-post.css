@@ -414,6 +414,99 @@ html[data-theme="dark"] .post-thumbnail {
   margin-top: 4rem;
 }
 
+
+/* =========================
+   COMMENTS
+========================= */
+
+.comments-section {
+  margin-top: 4rem;
+}
+
+.comments-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.comment-form button {
+  margin-top: 0.6rem;
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-prompt {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.comments-list {
+  margin-top: 2rem;
+}
+
+.comment {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.comment strong {
+  font-size: 0.9rem;
+}
+
+.comment p {
+  margin: 0.4rem 0;
+}
+
+.comment small {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+
+.comment {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.comment-delete {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #d00;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.comment-delete:hover {
+  text-decoration: underline;
+}
+
+
+
 /* =========================
    FOOTER – DARK MODE FIX
 ========================= */

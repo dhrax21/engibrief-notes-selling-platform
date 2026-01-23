@@ -50,6 +50,16 @@
   color: #3291B6 /* lighter blue */
 }
 
+.admin-blog-list-btn {
+  background: #2563eb;
+  color: #fff;
+}
+
+.admin-blog-list-btn:hover {
+  background: #1e40af;
+}
+
+
 .nav-links {
   display: flex;
   align-items: center;

@@ -1297,7 +1297,22 @@ LOGOUT BUTTON
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
 }
+
+@media (max-width: 768px) {
+  .admin-actions {
+    flex-direction: column;   
+    align-items: flex-start; 
+    width: 100%;
+    gap: 0.6rem;
+  }
+
+  .admin-actions .admin-btn {
+    width: auto;              
+  }
+}
+
 
 .admin-btn {
   background: #0f172a;
@@ -1308,6 +1323,7 @@ LOGOUT BUTTON
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
+  
 }
 
 .admin-btn:hover {

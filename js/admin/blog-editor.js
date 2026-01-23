@@ -26,22 +26,16 @@ if (!window.__adminBlogInitialized) {
       return;
     }
 
-    console.log("SESSION USER:", session.user);
-    console.log("JWT ROLE:", session.user.user_metadata?.role);
-
     /* =========================
        BLOG ID SETUP
     ========================= */
     const params = new URLSearchParams(window.location.search);
-    let blogId = params.get("id");
-
-    if (!blogId) {
-      blogId = crypto.randomUUID();
-    }
+    const isEditMode = params.has("id");
+    const blogId = params.get("id") || crypto.randomUUID();
     blogIdInput.value = blogId;
 
     /* =========================
-       INIT QUILL EDITOR
+       INIT QUILL
     ========================= */
     const quill = new Quill("#editor", {
       theme: "snow",
@@ -57,7 +51,7 @@ if (!window.__adminBlogInitialized) {
             ["clean"]
           ],
           handlers: {
-            image: imageHandler
+            image: () => imageHandler({ quill, blogId })
           }
         }
       }
@@ -66,15 +60,18 @@ if (!window.__adminBlogInitialized) {
     /* =========================
        LOAD BLOG (EDIT MODE)
     ========================= */
-    if (params.get("id")) {
-      await loadBlogForEdit(blogId);
+    if (isEditMode) {
+      await loadBlogForEdit(blogId, {
+        titleInput,
+        slugInput,
+        excerptInput,
+        quill
+      });
     }
 
     /* =========================
        FORM SUBMIT
     ========================= */
-    console.log("AUTHOR ID:", session.user.id);
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -92,21 +89,37 @@ if (!window.__adminBlogInitialized) {
         return;
       }
 
+      if (thumbnailFile && !thumbnailFile.type.startsWith("image/")) {
+        showToast("Thumbnail must be an image", "error");
+        submitBtn.disabled = false;
+        return;
+      }
+
       const slug =
         slugInput.value ||
-        title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "");
+        title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
       try {
-        showToast(params.get("id") ? "Updating blog…" : "Publishing blog…", "info");
+        showToast(isEditMode ? "Updating blog…" : "Publishing blog…", "info");
 
         /* =====================================================
-           STEP 1 — INSERT BLOG FIRST (CRITICAL FIX)
+           STEP 1 — CREATE OR UPDATE BLOG (NO UPSERT)
         ===================================================== */
-        if (!params.get("id")) {
-          const { data, error } = await supabase
+        if (isEditMode) {
+          const { error } = await supabase
+            .from("blogs")
+            .update({
+              title,
+              slug,
+              excerpt,
+              content
+            })
+            .eq("id", blogId);
+
+          if (error) throw error;
+
+        } else {
+          const { error } = await supabase
             .from("blogs")
             .insert({
               id: blogId,
@@ -118,200 +131,126 @@ if (!window.__adminBlogInitialized) {
               author_name: session.user.email,
               status: "PUBLISHED",
               published_at: new Date().toISOString()
-            })
-            .select()
-            .single();
+            });
 
-          console.log("BLOG INSERT RESULT:", data, error);
           if (error) throw error;
         }
 
         /* =====================================================
-           STEP 2 — THUMBNAIL UPLOAD (BEST-EFFORT)
+           STEP 2 — THUMBNAIL UPLOAD (OPTIONAL)
         ===================================================== */
         if (thumbnailFile) {
-          try {
-            const thumbPath = `blogs/${blogId}/thumbnail.webp`;
+          const ext = thumbnailFile.type.split("/")[1] || "webp";
+          const path = `blogs/${blogId}/thumbnail.${ext}`;
 
-            const { error: uploadError } = await supabase.storage
-              .from("blog-thumbnails")
-              .upload(thumbPath, thumbnailFile, { upsert: true });
+          const { error: uploadError } = await supabase.storage
+            .from("blog-thumbnails")
+            .upload(path, thumbnailFile, {
+              upsert: true,
+              contentType: thumbnailFile.type
+            });
 
-            if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-            const thumbnailUrl = supabase.storage
-              .from("blog-thumbnails")
-              .getPublicUrl(thumbPath).data.publicUrl;
+          const { data } = supabase.storage
+            .from("blog-thumbnails")
+            .getPublicUrl(path);
 
-            await supabase
-              .from("blogs")
-              .update({ thumbnail_url: thumbnailUrl })
-              .eq("id", blogId);
-
-          } catch (thumbErr) {
-            console.warn("Thumbnail upload failed:", thumbErr);
-            showToast("Blog saved, but thumbnail upload failed", "warning");
-          }
-        }
-
-        /* =========================
-           UPDATE BLOG (EDIT MODE)
-        ========================= */
-        if (params.get("id")) {
-          const updateData = {
-            title,
-            slug,
-            excerpt,
-            content
-          };
-
-          const { error } = await supabase
+          const { error: updateThumbError } = await supabase
             .from("blogs")
-            .update(updateData)
+            .update({ thumbnail_url: data.publicUrl })
             .eq("id", blogId);
 
-          if (error) throw error;
+          if (updateThumbError) throw updateThumbError;
+        }
 
-          showToast("Blog updated successfully", "success");
-        } else {
-          showToast("Blog published successfully", "success");
+        showToast("Saved successfully", "success");
+
+        if (!isEditMode) {
           window.location.href = "/pages/admin/blog-list.html";
         }
 
       } catch (err) {
-        console.error("BLOG ERROR:", err);
+        console.error(err);
         showToast(err.message || "Operation failed", "error");
       } finally {
         submitBtn.disabled = false;
       }
     });
-
-
-    async function deleteBlog(blogId) {
-  if (!confirm("Are you sure you want to delete this blog?")) return;
-
-  try {
-    showToast("Deleting blog…", "info");
-
-    /* =========================
-       DELETE THUMBNAIL
-    ========================= */
-    try {
-      await supabase.storage
-        .from("blog-thumbnails")
-        .remove([`blogs/${blogId}/thumbnail.webp`]);
-    } catch (err) {
-      console.warn("Thumbnail delete failed (ignored)", err);
-    }
-
-    /* =========================
-       DELETE INLINE IMAGES
-    ========================= */
-    try {
-      const { data: files } = await supabase.storage
-        .from("blog-images")
-        .list(`blogs/${blogId}`);
-
-      if (files?.length) {
-        const paths = files.map(f => `blogs/${blogId}/${f.name}`);
-        await supabase.storage
-          .from("blog-images")
-          .remove(paths);
-      }
-    } catch (err) {
-      console.warn("Inline images delete failed (ignored)", err);
-    }
-
-    /* =========================
-       DELETE BLOG ROW (FINAL)
-    ========================= */
-    const { error } = await supabase
-      .from("blogs")
-      .delete()
-      .eq("id", blogId);
-
-    if (error) throw error;
-
-    showToast("Blog deleted", "success");
-    location.reload();
-
-  } catch (err) {
-    console.error(err);
-    showToast("Failed to delete blog", "error");
-  }
+  });
 }
 
+/* =====================================================
+   HELPERS
+===================================================== */
 
-    /* =========================
-       LOAD BLOG DATA
-    ========================= */
-    async function loadBlogForEdit(id) {
-      showToast("Loading blog…", "info");
+async function loadBlogForEdit(blogId, refs) {
+  const { titleInput, slugInput, excerptInput, quill } = refs;
 
-      const { data, error } = await supabase
-        .from("blogs")
-        .select("*")
-        .eq("id", id)
-        .single();
+  showToast("Loading blog…", "info");
 
-      if (error || !data) {
-        showToast("Blog not found", "error");
-        return;
-      }
+  const { data, error } = await supabase
+    .from("blogs")
+    .select("*")
+    .eq("id", blogId)
+    .single();
 
-      titleInput.value = data.title;
-      slugInput.value = data.slug;
-      excerptInput.value = data.excerpt || "";
-      quill.root.innerHTML = data.content;
+  if (error || !data) {
+    showToast("Blog not found", "error");
+    return;
+  }
 
-      showToast("Edit mode enabled", "success", 1500);
+  titleInput.value = data.title;
+  slugInput.value = data.slug;
+  excerptInput.value = data.excerpt || "";
+  quill.root.innerHTML = data.content || "";
+
+  showToast("Edit mode enabled", "success", 1500);
+}
+
+/* =========================
+   INLINE IMAGE UPLOAD
+========================= */
+async function imageHandler({ quill, blogId }) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.click();
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Image must be under 2MB", "error");
+      return;
     }
 
-    /* =========================
-       INLINE IMAGE UPLOAD
-    ========================= */
-    async function imageHandler() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.click();
+    const range = quill.getSelection(true);
+    quill.insertText(range.index, "Uploading image...", { italic: true });
 
-      input.onchange = async () => {
-        const file = input.files[0];
-        if (!file) return;
+    try {
+      const path = `blogs/${blogId}/${crypto.randomUUID()}.webp`;
 
-        if (file.size > 2 * 1024 * 1024) {
-          showToast("Image must be under 2MB", "error");
-          return;
-        }
+      const { error } = await supabase.storage
+        .from("blog-images")
+        .upload(path, file);
 
-        const range = quill.getSelection(true);
-        quill.insertText(range.index, "Uploading image...", { italic: true });
+      if (error) throw error;
 
-        try {
-          const imagePath = `blogs/${blogId}/${crypto.randomUUID()}.webp`;
+      const url = supabase.storage
+        .from("blog-images")
+        .getPublicUrl(path).data.publicUrl;
 
-          const { error } = await supabase.storage
-            .from("blog-images")
-            .upload(imagePath, file, { upsert: false });
+      quill.deleteText(range.index, "Uploading image...".length);
+      quill.insertEmbed(range.index, "image", url);
+      quill.setSelection(range.index + 1);
 
-          if (error) throw error;
-
-          const imageUrl = supabase.storage
-            .from("blog-images")
-            .getPublicUrl(imagePath).data.publicUrl;
-
-          quill.deleteText(range.index, "Uploading image...".length);
-          quill.insertEmbed(range.index, "image", imageUrl);
-          quill.setSelection(range.index + 1);
-
-        } catch (err) {
-          console.error(err);
-          showToast("Image upload failed", "error");
-        }
-      };
+    } catch (err) {
+      console.error(err);
+      showToast("Image upload failed", "error");
     }
-  });
+  };
 }
 
 /* =========================

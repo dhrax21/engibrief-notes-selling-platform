@@ -12,23 +12,27 @@
 
 </head>
 <body>
-  <main class="blog-list-container">
-    <h1 class="page-title">Blog</h1>
+        <main class="blog-list-container">
+        <div class="back-link-wrapper">
+          <a href="/index.html" class="back-link">← Back to Home</a>
+        </div>
 
-    <div id="loading" class="loading">Loading articles…</div>
+        <h1 class="page-title">Blogs</h1>
 
-    <section id="blogList" class="blog-list hidden">
-      <!-- cards injected -->
-    </section>
+        <div id="loading" class="loading">Loading articles…</div>
 
-    <div id="scrollLoader" class="loading hidden">
-      Loading more articles…
-    </div>
+        <section id="blogList" class="blog-list hidden">
+          <!-- cards injected -->
+        </section>
 
-    <div id="empty" class="empty hidden">
-      No blogs published yet.
-    </div>
-  </main>
+        <div id="scrollLoader" class="loading hidden">
+          Loading more articles…
+        </div>
+
+        <div id="empty" class="empty hidden">
+          No blogs published yet.
+        </div>
+      </main>
 
   <script type="module" src="/js/blog/list.js"></script>
 

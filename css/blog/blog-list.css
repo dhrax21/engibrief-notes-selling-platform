@@ -25,6 +25,65 @@ a {
    PAGE LAYOUT
 ========================= */
 
+
+#blog-section {
+  padding: 4rem 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.blog-card {
+  background: whitesmoke;
+  color: black;
+  border-radius: 14px;
+  max-width: 900px;
+  margin: auto;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.blog-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  background: #222;
+}
+
+.blog-card-body {
+  padding: 1rem 1.1rem;
+}
+
+.blog-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  color: black;
+}
+
+.blog-card p {
+  font-size: 0.95rem;
+  color: black;
+  margin-bottom: 0.6rem;
+}
+
+.blog-card small {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
 .blog-list-container {
   max-width: 1200px;
   margin: 3rem auto;
@@ -35,6 +94,8 @@ a {
   font-size: 2.4rem;
   margin-bottom: 1rem;
 }
+
+
 
 /* =========================
    LOADERS / EMPTY
@@ -63,17 +124,25 @@ a {
   margin-top: 2.5rem;
 }
 
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+
 /* =========================
    BLOG CARD
 ========================= */
 
 .blog-card {
-  background: whitesmoke;
-  color: black;
-  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.25);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
 }
 
 .blog-card:hover {
@@ -81,12 +150,17 @@ a {
   box-shadow: 0 20px 45px rgba(0,0,0,0.35);
 }
 
-.blog-card-img {
+.blog-card__image {
   width: 100%;
-  height: 220px;
-  object-fit: cover;
+  height: 200px;          
+  overflow: hidden;
+}
+
+.blog-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     
   display: block;
-  background: #222;
 }
 
 .blog-card-body {
@@ -98,6 +172,40 @@ a {
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
+
+.blog-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-card__excerpt {
+  color: #555;
+  line-height: 1.6;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+.blog-card__content {
+  flex: 1;               
+  padding: 1.25rem;
+}
+
+.blog-card__meta {
+  margin-top: auto;      
+  font-size: 0.85rem;
+  color: #777;
+}
+
 
 .blog-card p {
   font-size: 0.95rem;
@@ -111,9 +219,79 @@ a {
   color: black;
 }
 
+.blog-card.featured {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .blog-card.featured {
+    grid-column: span 1;
+  }
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+
+.back-link-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.back-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+
+
 /* =========================
    FEATURED BLOG
 ========================= */
+
+/* Featured spans two columns */
+.blog-card.featured {
+  grid-column: span 2;
+}
+
+/* Taller image for featured */
+.featured-image {
+  height: 280px; /* larger than normal cards */
+}
+
+/* Slightly more text */
+.featured-excerpt {
+  -webkit-line-clamp: 4;
+}
+
+/* Responsive fallback */
+@media (max-width: 768px) {
+  .blog-card.featured {
+    grid-column: span 1;
+  }
+
+  .featured-image {
+    height: 220px;
+  }
+}
+
 
 .featured-blog {
   grid-column: span 2;

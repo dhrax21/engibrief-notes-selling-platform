@@ -1,6 +1,5 @@
 import { supabase } from "/js/supabase.js";
 
-console.log("BLOG LIST JS LOADED");
 
 const PAGE_SIZE = 6;
 let page = 0;
@@ -86,44 +85,65 @@ async function loadNextPage() {
 function renderBlogCard(blog) {
   return `
     <article class="blog-card">
-      <a href="/pages/blog/post.html?slug=${blog.slug}">
-        <img
-          class="blog-card-img"
-          src="${blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
-          alt="${blog.title}"
-          loading="lazy"
-        />
-        <div class="blog-card-body">
-          <h3>${blog.title}</h3>
-          <p>${truncate(blog.excerpt)}</p>
-          <small>
+      <a href="/pages/blog/post.html?slug=${blog.slug}" class="blog-card-link">
+        
+        <div class="blog-card__image">
+          <img
+            src="${blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
+            alt="${blog.title}"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="blog-card__content">
+          <h3 class="blog-card__title">${blog.title}</h3>
+
+          <p class="blog-card__excerpt">
+            ${truncate(blog.excerpt)}
+          </p>
+
+          <div class="blog-card__meta">
             ${new Date(blog.created_at).toLocaleDateString()}
             · ${blog.views} views
-          </small>
+          </div>
         </div>
+
       </a>
     </article>
   `;
 }
 
+
 function renderFeaturedBlog(blog) {
   return `
-    <article class="blog-card featured-blog">
-      <a href="/pages/blog/post.html?slug=${blog.slug}">
-        <img
-          class="blog-card-img"
-          src="${blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
-          alt="${blog.title}"
-        />
-        <div class="blog-card-body">
-          <h3>${blog.title}</h3>
-          <p>${truncate(blog.excerpt, 220)}</p>
-          <small>
+    <article class="blog-card featured">
+      <a href="/pages/blog/post.html?slug=${blog.slug}" class="blog-card-link">
+
+        <div class="blog-card__image featured-image">
+          <img
+            src="${blog.thumbnail_url || "/assets/blog-placeholder.jpg"}"
+            alt="${blog.title}"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="blog-card__content">
+          <h3 class="blog-card__title">
+            ${blog.title}
+          </h3>
+
+          <p class="blog-card__excerpt featured-excerpt">
+            ${truncate(blog.excerpt, 220)}
+          </p>
+
+          <div class="blog-card__meta">
             ${new Date(blog.created_at).toLocaleDateString()}
             · ${blog.views} views
-          </small>
+          </div>
         </div>
+
       </a>
     </article>
   `;
 }
+
