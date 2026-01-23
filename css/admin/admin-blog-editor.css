@@ -1,0 +1,178 @@
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f6f7f9;
+  color: #1f2933;
+}
+
+/* =========================
+   TOP BAR
+========================= */
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: #111827;
+  color: #ffffff;
+}
+
+.admin-topbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.admin-topbar button {
+  background: #ef4444;
+  border: none;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-topbar button:hover {
+  opacity: 0.9;
+}
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+.editor-container {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+/* =========================
+   FORM
+========================= */
+.editor-form {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 6px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.editor-form label {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.editor-form input,
+.editor-form textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+.editor-form input:disabled {
+  background: #f3f4f6;
+}
+
+.editor-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* =========================
+   QUILL EDITOR
+========================= */
+#editor {
+  margin-top: 6px;
+  background: #ffffff;
+}
+
+.ql-toolbar {
+  border-radius: 4px 4px 0 0;
+}
+
+.ql-container {
+  min-height: 280px;
+  border-radius: 0 0 4px 4px;
+  font-size: 15px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   TOAST
+========================= */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 18px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+.toast.info {
+  background: #2563eb;
+}
+
+.toast.success {
+  background: #16a34a;
+}
+
+.toast.error {
+  background: #dc2626;
+}
+
+.toast.hidden {
+  display: none;
+}
+
+.toast.show {
+  display: block;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 640px) {
+  .editor-container {
+    margin: 16px auto;
+  }
+
+  .editor-form {
+    padding: 16px;
+  }
+}

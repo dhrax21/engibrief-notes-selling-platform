@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin · Blogs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/css/admin/admin-blog-list.css" />
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="admin-topbar">
+    <h1>Blogs</h1>
+    <a href="/pages/admin/blog-editor.html" class="btn-primary">
+      + New Blog
+    </a>
+  </header>
+
+  <!-- Content -->
+  <main class="container">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Views</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="blogTableBody">
+        <!-- injected -->
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="/js/admin/blog-list.js"></script>
+</body>
+</html>

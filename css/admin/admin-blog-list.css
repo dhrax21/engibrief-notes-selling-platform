@@ -1,0 +1,111 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f6f7f9;
+  color: #1f2933;
+}
+
+/* Topbar */
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: #111827;
+  color: #fff;
+}
+
+.admin-topbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Container */
+.container {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+/* Table */
+.blog-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.blog-table th,
+.blog-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.blog-table th {
+  background: #f3f4f6;
+  text-align: left;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status.published {
+  color: #16a34a;
+}
+
+.status.draft {
+  color: #d97706;
+}
+
+/* Actions */
+.actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.actions .edit {
+  color: #2563eb;
+}
+
+.actions .delete {
+  color: #dc2626;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 18px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+.toast.success { background: #16a34a; }
+.toast.error { background: #dc2626; }
+.toast.info { background: #2563eb; }
+
+.toast.hidden { display: none; }
+.toast.show { display: block; }

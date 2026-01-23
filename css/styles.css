@@ -51,6 +51,84 @@ a {
   color: inherit;
 }
 
+.admin-blog-btn {
+  background: #0066ff;
+  color: #fff;
+}
+
+.admin-blog-btn:hover {
+  background: #004fcc;
+}
+
+
+
+/* Blog Cards */
+#blog-section {
+  padding: 4rem 1rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.blog-card {
+  background: whitesmoke;
+  color: black;
+  border-radius: 14px;
+  max-width: 900px;
+  margin: auto;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.blog-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  background: #222;
+}
+
+.blog-card-body {
+  padding: 1rem 1.1rem;
+}
+
+.blog-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+  color: black;
+}
+
+.blog-card p {
+  font-size: 0.95rem;
+  color: black;
+  margin-bottom: 0.6rem;
+}
+
+.blog-card small {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.view-all {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #0066ff;
+  font-weight: 500;
+}
+
+
 
 /* Hero Sections */
 .hero {

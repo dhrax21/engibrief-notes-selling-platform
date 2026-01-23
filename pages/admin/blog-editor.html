@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin · Blog Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Quill -->
+  <link
+    href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+    rel="stylesheet"
+  />
+
+  <!-- Admin CSS -->
+  <link rel="stylesheet" href="/css/admin/admin-blog-editor.css" />
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="admin-topbar">
+    <h1>Blog Editor</h1>
+    <button id="logoutBtn">Logout</button>
+  </header>
+
+  <!-- Main Container -->
+  <main class="editor-container">
+
+    <form id="blogForm" class="editor-form">
+      <input type="hidden" id="blogId" />
+
+
+      <!-- Title -->
+      <label>
+        Title
+        <input id="title" type="text" placeholder="Enter blog title" required />
+      </label>
+
+      <!-- Slug -->
+      <label>
+        Slug
+        <input id="slug" type="text" placeholder="auto-generated" disabled />
+      </label>
+
+      <!-- Excerpt -->
+      <label>
+        Excerpt
+        <textarea id="excerpt" placeholder="Short summary (optional)"></textarea>
+      </label>
+
+      <!-- Thumbnail -->
+      <label>
+        Thumbnail Image
+        <input id="thumbnailFile" type="file" accept="image/*" required />
+      </label>
+
+      <!-- Editor -->
+      <label>
+        Content
+        <div id="editor"></div>
+      </label>
+
+      <!-- Actions -->
+      <div class="editor-actions">
+        <button type="submit" class="btn-primary">
+          Publish Blog
+        </button>
+      </div>
+
+    </form>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script type="module" src="/js/admin/blog-editor.js"></script>
+
+</body>
+</html>

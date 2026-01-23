@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="description" content="Articles, tutorials, and insights." />
+
+  <link rel="stylesheet" href="/css/blog/blog-list.css" />
+ 
+
+</head>
+<body>
+  <main class="blog-list-container">
+    <h1 class="page-title">Blog</h1>
+
+    <div id="loading" class="loading">Loading articles…</div>
+
+    <section id="blogList" class="blog-list hidden">
+      <!-- cards injected -->
+    </section>
+
+    <div id="scrollLoader" class="loading hidden">
+      Loading more articles…
+    </div>
+
+    <div id="empty" class="empty hidden">
+      No blogs published yet.
+    </div>
+  </main>
+
+  <script type="module" src="/js/blog/list.js"></script>
+
+</body>
+</html>

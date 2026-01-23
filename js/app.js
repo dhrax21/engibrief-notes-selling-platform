@@ -5,6 +5,7 @@ const ROUTES = {
   auth: "/pages/auth.html",
   profile: "/pages/profile.html",
   admin: "/pages/admin-upload.html",
+  adminBlog: "/pages/admin/blog-editor.html",
   adminRzp: "/pages/admin-upload-rzp.html",
 };
 
@@ -40,6 +41,9 @@ async function renderNavbar() {
       <div class="admin-actions">
         <button class="admin-btn" id="adminUploadBtn">Upload</button>
         <button class="admin-btn" id="adminUploadRzpBtn">Upload RZP</button>
+         <button class="admin-btn admin-blog-btn" id="adminBlogBtn">
+        Upload Blog
+      </button>
       </div>
       <span class="user-name">${displayName}</span>
       <a href="${ROUTES.profile}" class="nav-link">Profile</a>
@@ -50,6 +54,10 @@ async function renderNavbar() {
       ?.addEventListener("click", () => {
         window.location.href = ROUTES.admin;
       });
+     document.getElementById("adminBlogBtn")
+    ?.addEventListener("click", () => {
+      window.location.href = ROUTES.adminBlog;
+    });  
 
     document.getElementById("adminUploadRzpBtn")
       ?.addEventListener("click", () => {
